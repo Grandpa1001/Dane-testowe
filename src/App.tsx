@@ -333,7 +333,7 @@ function App() {
   ];
 
   return (
-    <div id="app-container" data-testid="app-container" className="min-h-screen bg-gray-50">
+    <div id="app-container" data-testid="app-container" className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-white border-b-2 border-black">
         <div className="max-w-4xl mx-auto px-4 py-6">
@@ -363,8 +363,12 @@ function App() {
                 {/* Monitor */}
                 <div className="absolute inset-2 bg-white rounded border-2 border-black">
                   <div className="w-full h-2 bg-black rounded-t"></div>
-                  <div className="p-2 flex items-center justify-center h-full">
-                    <Settings size={24} className="text-black" />
+                  <div className="p-2 pb-4 flex items-center justify-center h-full">
+                    <img 
+                      src="/src/Wasi_noBackground.png" 
+                      alt="Wasi" 
+                      className="w-16 h-16 object-contain grayscale"
+                    />
                   </div>
                 </div>
                 {/* Stand */}
@@ -848,6 +852,19 @@ Cyfra kontrolna: 187 % 10 = 7`}</pre>
             >
               <Github size={16} />
               <span>MgrGracz</span>
+            </a>
+            <a
+              href="https://mgrgracz.netlify.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-3 py-1 bg-black text-white font-bold text-sm hover:bg-gray-800 transition-colors"
+            >
+              <img 
+                src="/src/WasiHead.png" 
+                alt="Wasi" 
+                className="w-4 h-4 object-contain"
+              />
+              <span>Website</span>
             </a>
           </div>
           <p className="text-center text-gray-500 mt-2 text-xs">
