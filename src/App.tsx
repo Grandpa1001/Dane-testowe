@@ -365,7 +365,7 @@ function App() {
                   <div className="w-full h-2 bg-black rounded-t"></div>
                   <div className="p-2 pb-4 flex items-center justify-center h-full">
                     <img 
-                      src="/src/Wasi_noBackground.png" 
+                      src="/Wasi_noBackground.png" 
                       alt="Wasi" 
                       className="w-16 h-16 object-contain grayscale"
                     />
@@ -845,13 +845,13 @@ Cyfra kontrolna: 187 % 10 = 7`}</pre>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
             <span className="text-gray-700 text-sm">Stworzone przez:</span>
             <a
-              href="https://github.com/MgrGracz"
+              href="https://github.com/Grandpa1001"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-3 py-1 bg-black text-white font-bold text-sm hover:bg-gray-800 transition-colors"
             >
               <Github size={16} />
-              <span>MgrGracz</span>
+              <span>Grandpa1001</span>
             </a>
             <a
               href="https://mgrgracz.netlify.app/"
@@ -860,7 +860,7 @@ Cyfra kontrolna: 187 % 10 = 7`}</pre>
               className="flex items-center gap-2 px-3 py-1 bg-black text-white font-bold text-sm hover:bg-gray-800 transition-colors"
             >
               <img 
-                src="/src/WasiHead.png" 
+                src="/WasiHead.png" 
                 alt="Wasi" 
                 className="w-4 h-4 object-contain"
               />
