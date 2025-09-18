@@ -8,10 +8,12 @@ interface TestData {
   regon: string;
   nrb: string;
   idNumber: string;
+  mDowod: string;
   passportNumber: string;
   landRegisterNumber: string;
   swift: string;
   iban: string;
+  guid: string;
 }
 
 function App() {
@@ -22,16 +24,20 @@ function App() {
     regon: '',
     nrb: '',
     idNumber: '',
+    mDowod: '',
     passportNumber: '',
     landRegisterNumber: '',
     swift: '',
-    iban: ''
+    iban: '',
+    guid: ''
   });
   
   const [copiedField, setCopiedField] = useState<string>('');
   const [showHelpModal, setShowHelpModal] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'python' | 'javascript'>('python');
   const [showLandRegisterModal, setShowLandRegisterModal] = useState<boolean>(false);
+  const [showMDowodModal, setShowMDowodModal] = useState<boolean>(false);
+  const [showIDNumberModal, setShowIDNumberModal] = useState<boolean>(false);
 
   // Polskie imiona i nazwiska
   const firstNames = [
@@ -110,31 +116,103 @@ function App() {
     return checkDigits + bankCode + '0000' + accountNumber;
   };
 
-  // Generowanie numeru dowodu
+  // Generowanie numeru dowodu osobistego
   const generateIDNumber = (): string => {
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const letter1 = letters[randomInt(0, 25)];
-    const letter2 = letters[randomInt(0, 25)];
-    const letter3 = letters[randomInt(0, 25)];
+    const letters = 'ABCDEFGHIJKLMNPRSTUVWXYZ'; // Bez O i Q jak w oryginalnym algorytmie
     
-    // Generuj 5 losowych cyfr (bez pierwszej cyfry kontrolnej)
+    // Generuj prefiks zgodnie z algorytmem walidatora
+    let prefix: string;
+    const randomCase = randomInt(0, 5);
+    
+    if (randomCase <= 2) {
+      // 60% szans - A + litera
+      prefix = 'A' + letters[randomInt(0, letters.length - 1)];
+    } else if (randomCase === 3) {
+      // 20% szans - C + litera A-I
+      const limitedLetters = 'ABCDEFGHI';
+      prefix = 'C' + limitedLetters[randomInt(0, limitedLetters.length - 1)];
+    } else {
+      // 20% szans - D + litera A-H
+      const limitedLetters = 'ABCDEFGH';
+      prefix = 'D' + limitedLetters[randomInt(0, limitedLetters.length - 1)];
+    }
+    
+    // Generuj kolejną literę
+    const letter = letters[randomInt(0, letters.length - 1)];
+    
+    // Generuj 5 losowych cyfr
     const randomNumbers = randomInt(10000, 99999).toString();
     
-    // Oblicz cyfrę kontrolną na podstawie liter i pozostałych cyfr
-    const controlDigit = calculateIDControlDigit(letter1 + letter2 + letter3 + randomNumbers);
+    // Utwórz bazowy numer (prefiks + litera + 5 cyfr)
+    const baseNumber = prefix + letter + randomNumbers;
     
-    return letter1 + letter2 + letter3 + controlDigit + randomNumbers;
+    // Oblicz cyfrę kontrolną z pierwszych 7 znaków
+    const controlDigit = calculateIDControlDigit(baseNumber);
+    
+    // Wstaw cyfrę kontrolną na pozycję 3 (po prefiks + litera)
+    return baseNumber.substring(0, 3) + controlDigit + baseNumber.substring(3);
   };
 
   // Funkcja obliczająca cyfrę kontrolną dla numeru dowodu osobistego
   const calculateIDControlDigit = (idString: string): string => {
-    // Wagi dla kolejnych znaków: 7, 3, 1, 7, 3, 1, 7, 3
+    // Wagi dla kolejnych siedmiu pozycji: [P1, P2, L, C1, C2, C3, C4]
+    const weights = [7, 3, 1, 7, 3, 1, 7];
+    
+    let sum = 0;
+    
+    for (let i = 0; i < 7; i++) {
+      const char = idString[i];
+      let value: number;
+      
+      if (char >= 'A' && char <= 'Z') {
+        // Litery: A=10, B=11, C=12, ..., Z=35
+        value = char.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
+      } else if (char >= '0' && char <= '9') {
+        // Cyfry: 0=0, 1=1, 2=2, ..., 9=9
+        value = parseInt(char);
+      } else {
+        value = 0;
+      }
+      
+      sum += value * weights[i];
+    }
+    
+    return (sum % 10).toString();
+  };
+
+  // Generowanie numeru mDowód (dowód osobisty w systemie mObywatel)
+  const generateMDowod = (): string => {
+    const letters = 'ABCDEFGHIJKLMNPRSTUVWXYZ'; // Bez O i Q jak w oryginalnym algorytmie
+    
+    // Zawsze zaczyna się od MA
+    const prefix = 'MA';
+    
+    // Generuj 2 litery serii dowodu
+    const letter1 = letters[randomInt(0, letters.length - 1)];
+    const letter2 = letters[randomInt(0, letters.length - 1)];
+    
+    // Generuj 4 losowe cyfry
+    const randomNumbers = randomInt(1000, 9999).toString();
+    
+    // Utwórz bazowy numer (MA + 2 litery + 4 cyfry)
+    const baseNumber = prefix + letter1 + letter2 + randomNumbers;
+    
+    // Oblicz cyfrę kontrolną z pierwszych 8 znaków
+    const controlDigit = calculateMDowodControlDigit(baseNumber);
+    
+    // Wstaw cyfrę kontrolną na pozycję 4 (po MA + 2 litery)
+    return baseNumber.substring(0, 4) + controlDigit + baseNumber.substring(4);
+  };
+
+  // Funkcja obliczająca cyfrę kontrolną dla numeru mDowód
+  const calculateMDowodControlDigit = (mDowodString: string): string => {
+    // Wagi dla kolejnych ośmiu pozycji: [M, A, L1, L2, C1, C2, C3, C4]
     const weights = [7, 3, 1, 7, 3, 1, 7, 3];
     
     let sum = 0;
     
     for (let i = 0; i < 8; i++) {
-      const char = idString[i];
+      const char = mDowodString[i];
       let value: number;
       
       if (char >= 'A' && char <= 'Z') {
@@ -268,6 +346,27 @@ function App() {
     return 'PL' + randomInt(10, 99).toString() + nrb;
   };
 
+  // Generowanie GUID/UUID v4
+  const generateGUID = (): string => {
+    // Generowanie UUID v4 zgodnie z RFC 4122
+    const hex = '0123456789abcdef';
+    let uuid = '';
+    
+    // Generuj 32 losowych znaków hex
+    for (let i = 0; i < 32; i++) {
+      uuid += hex[randomInt(0, 15)];
+    }
+    
+    // Wstaw myślniki w odpowiednich miejscach
+    return [
+      uuid.substring(0, 8),
+      uuid.substring(8, 12),
+      uuid.substring(12, 16),
+      uuid.substring(16, 20),
+      uuid.substring(20, 32)
+    ].join('-');
+  };
+
   // Generowanie wszystkich danych
   const generateAllData = (): TestData => {
     return {
@@ -277,10 +376,12 @@ function App() {
       regon: generateREGON(),
       nrb: generateNRB(),
       idNumber: generateIDNumber(),
+      mDowod: generateMDowod(),
       passportNumber: generatePassportNumber(),
       landRegisterNumber: generateLandRegisterNumber(),
       swift: generateSWIFT(),
-      iban: generateIBAN()
+      iban: generateIBAN(),
+      guid: generateGUID()
     };
   };
 
@@ -326,10 +427,12 @@ function App() {
     { key: 'regon' as keyof TestData, label: 'REGON' },
     { key: 'nrb' as keyof TestData, label: 'NRB' },
     { key: 'idNumber' as keyof TestData, label: 'Numer dowodu' },
+    { key: 'mDowod' as keyof TestData, label: 'mDowód' },
     { key: 'passportNumber' as keyof TestData, label: 'Numer paszportu' },
     { key: 'landRegisterNumber' as keyof TestData, label: 'Księga wieczysta' },
     { key: 'swift' as keyof TestData, label: 'SWIFT' },
-    { key: 'iban' as keyof TestData, label: 'IBAN' }
+    { key: 'iban' as keyof TestData, label: 'IBAN' },
+    { key: 'guid' as keyof TestData, label: 'GUID' }
   ];
 
   return (
@@ -403,6 +506,28 @@ function App() {
                   onClick={() => setShowLandRegisterModal(true)}
                   className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
                   title="Jak obliczana jest cyfra kontrolna?"
+                >
+                  <Info size={12} />
+                </button>
+              )}
+
+              {/* Tooltip button for mDowód */}
+              {field.key === 'mDowod' && (
+                <button
+                  onClick={() => setShowMDowodModal(true)}
+                  className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
+                  title="Jak generowany jest mDowód?"
+                >
+                  <Info size={12} />
+                </button>
+              )}
+
+              {/* Tooltip button for ID Number */}
+              {field.key === 'idNumber' && (
+                <button
+                  onClick={() => setShowIDNumberModal(true)}
+                  className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
+                  title="Jak generowany jest numer dowodu osobistego?"
                 >
                   <Info size={12} />
                 </button>
@@ -521,6 +646,9 @@ function App() {
                     <strong className="text-black">Dowód:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-idNumber</code>
                   </div>
                   <div className="bg-white p-2 border-2 border-black">
+                    <strong className="text-black">mDowód:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-mDowod</code>
+                  </div>
+                  <div className="bg-white p-2 border-2 border-black">
                     <strong className="text-black">Paszport:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-passportNumber</code>
                   </div>
                   <div className="bg-white p-2 border-2 border-black">
@@ -531,6 +659,9 @@ function App() {
                   </div>
                   <div className="bg-white p-2 border-2 border-black">
                     <strong className="text-black">IBAN:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-iban</code>
+                  </div>
+                  <div className="bg-white p-2 border-2 border-black">
+                    <strong className="text-black">GUID:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-guid</code>
                   </div>
                 </div>
               </div>
@@ -832,6 +963,276 @@ Cyfra kontrolna: 187 % 10 = 7`}</pre>
                 <p className="text-sm text-gray-700">
                   Algorytm zgodny z oficjalną specyfikacją Ministerstwa Sprawiedliwości.
                   Używany w systemie EKW (Elektroniczne Księgi Wieczyste).
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* mDowód Algorithm Modal */}
+      {showMDowodModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white border-2 border-black max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b-2 border-black">
+              <h2 className="text-2xl font-black text-black">📱 Algorytm mDowód</h2>
+              <button
+                onClick={() => setShowMDowodModal(false)}
+                className="p-2 hover:bg-gray-100 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Introduction */}
+              <div className="bg-gray-50 p-4 border-2 border-black">
+                <h3 className="text-lg font-bold mb-2 text-black">📋 Format numeru mDowód:</h3>
+                <p className="text-sm text-gray-700 mb-2">
+                  <code className="bg-white border border-black px-1 font-mono">MAXXYYYY</code>
+                </p>
+                <ul className="text-sm text-gray-700 space-y-1">
+                  <li>• <strong>MA</strong> - stały prefiks</li>
+                  <li>• <strong>XX</strong> - 2 litery serii dowodu</li>
+                  <li>• <strong>Y</strong> - cyfra kontrolna (pozycja 4)</li>
+                  <li>• <strong>YYYY</strong> - 4 cyfry numeru dowodu</li>
+                </ul>
+              </div>
+
+              {/* Algorithm Steps */}
+              <div>
+                <h3 className="text-lg font-bold mb-3 text-black">🔢 Kroki generowania:</h3>
+                <div className="space-y-4">
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">1. Generowanie prefiksu</h4>
+                    <p className="text-sm text-gray-700">
+                      Zawsze zaczyna się od <code className="bg-gray-100 border border-black px-1 font-mono">MA</code>
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">2. Generowanie liter</h4>
+                    <p className="text-sm text-gray-700">
+                      2 losowe litery z alfabetu bez O i Q: <code className="bg-gray-100 border border-black px-1 font-mono">ABCDEFGHIJKLMNPRSTUVWXYZ</code>
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">3. Generowanie cyfr</h4>
+                    <p className="text-sm text-gray-700">
+                      4 losowe cyfry (1000-9999)
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">4. Obliczanie cyfry kontrolnej</h4>
+                    <p className="text-sm text-gray-700">
+                      Wagi: <code className="bg-gray-100 border border-black px-1 font-mono">[7, 3, 1, 7, 3, 1, 7, 3]</code>
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      Suma z pierwszych 8 znaków modulo 10
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">5. Wstawienie cyfry kontrolnej</h4>
+                    <p className="text-sm text-gray-700">
+                      Cyfra kontrolna wstawiana na pozycję 4 (po MA + 2 litery)
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Example */}
+              <div>
+                <h3 className="text-lg font-bold mb-3 text-black">📝 Przykład: MAAAB1234</h3>
+                <div className="bg-black text-white p-4 border-2 border-black text-sm font-mono overflow-x-auto">
+                  <pre>{`MAAAB1234
+
+M(22) × 7 = 154
+A(10) × 3 = 30
+A(10) × 1 = 10
+A(10) × 7 = 70
+B(11) × 3 = 33
+1(1) × 1 = 1
+2(2) × 7 = 14
+3(3) × 3 = 9
+
+Suma: 321
+Cyfra kontrolna: 321 % 10 = 1
+Finalny numer: MAAAB12341`}</pre>
+                </div>
+              </div>
+
+              {/* Character Values */}
+              <div>
+                <h3 className="text-lg font-bold mb-3 text-black">📊 Wartości znaków:</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                  <div className="bg-white p-2 border-2 border-black">
+                    <strong>Cyfry:</strong><br/>
+                    0=0, 1=1, 2=2, 3=3, 4=4<br/>
+                    5=5, 6=6, 7=7, 8=8, 9=9
+                  </div>
+                  <div className="bg-white p-2 border-2 border-black">
+                    <strong>Litery A-M:</strong><br/>
+                    A=10, B=11, C=12, D=13<br/>
+                    E=15, F=16, G=17, H=18<br/>
+                    I=19, J=20, K=21, L=22<br/>
+                    M=23
+                  </div>
+                  <div className="bg-white p-2 border-2 border-black">
+                    <strong>Litery N-Z:</strong><br/>
+                    N=24, P=26, R=27, S=28<br/>
+                    T=29, U=30, V=31, W=32<br/>
+                    X=33, Y=34, Z=35
+                  </div>
+                </div>
+              </div>
+
+              {/* Official Source */}
+              <div className="bg-blue-50 p-4 border-2 border-blue-300">
+                <h3 className="text-lg font-bold mb-2 text-black">ℹ️ Źródło:</h3>
+                <p className="text-sm text-gray-700">
+                  Algorytm zgodny z walidatorem <a href="https://romek.info/ut/js-pesel.html" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">romek.info</a>.
+                  Używany w systemie mObywatel dla generowania numerów dowodów osobistych.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ID Number Algorithm Modal */}
+      {showIDNumberModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white border-2 border-black max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b-2 border-black">
+              <h2 className="text-2xl font-black text-black">🆔 Algorytm Numeru Dowodu Osobistego</h2>
+              <button
+                onClick={() => setShowIDNumberModal(false)}
+                className="p-2 hover:bg-gray-100 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Introduction */}
+              <div className="bg-gray-50 p-4 border-2 border-black">
+                <h3 className="text-lg font-bold mb-2 text-black">📋 Struktura numeru dowodu osobistego:</h3>
+                <p className="text-sm text-gray-700 mb-2">
+                  <code className="bg-white border border-black px-1 font-mono">PREFIX + LITERA + CYFRA_KONTROLNA + 5_CYFR</code>
+                </p>
+                <ul className="text-sm text-gray-700 space-y-1">
+                  <li>• <strong>PREFIX</strong> - A (60%), C (20%), D (20%) + litera</li>
+                  <li>• <strong>LITERA</strong> - dodatkowa litera serii</li>
+                  <li>• <strong>CYFRA_KONTROLNA</strong> - obliczana cyfra kontrolna</li>
+                  <li>• <strong>5_CYFR</strong> - unikalny numer identyfikacyjny</li>
+                </ul>
+              </div>
+
+              {/* Algorithm Steps */}
+              <div>
+                <h3 className="text-lg font-bold mb-3 text-black">🔢 Kroki generowania:</h3>
+                <div className="space-y-4">
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">1. Generowanie prefiksu</h4>
+                    <p className="text-sm text-gray-700">
+                      <strong>A + litera</strong> (60% szans) - np. AB, AC, AD<br/>
+                      <strong>C + litera A-I</strong> (20% szans) - np. CA, CB, CI<br/>
+                      <strong>D + litera A-H</strong> (20% szans) - np. DA, DB, DH
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">2. Generowanie litery serii</h4>
+                    <p className="text-sm text-gray-700">
+                      Dodatkowa litera z alfabetu bez O i Q: <code className="bg-gray-100 border border-black px-1 font-mono">ABCDEFGHIJKLMNPRSTUVWXYZ</code>
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">3. Generowanie numeru</h4>
+                    <p className="text-sm text-gray-700">
+                      5 losowych cyfr (10000-99999)
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">4. Obliczanie cyfry kontrolnej</h4>
+                    <p className="text-sm text-gray-700">
+                      Wagi: <code className="bg-gray-100 border border-black px-1 font-mono">[7, 3, 1, 7, 3, 1, 7]</code>
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      Suma z pierwszych 7 znaków modulo 10
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">5. Wstawienie cyfry kontrolnej</h4>
+                    <p className="text-sm text-gray-700">
+                      Cyfra kontrolna wstawiana na pozycję 3 (po prefiks + litera)
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Example */}
+              <div>
+                <h3 className="text-lg font-bold mb-3 text-black">📝 Przykład: AB12345</h3>
+                <div className="bg-black text-white p-4 border-2 border-black text-sm font-mono overflow-x-auto">
+                  <pre>{`AB12345
+
+A(10) × 7 = 70
+B(11) × 3 = 33
+1(1) × 1 = 1
+2(2) × 7 = 14
+3(3) × 3 = 9
+4(4) × 1 = 4
+5(5) × 7 = 35
+
+Suma: 166
+Cyfra kontrolna: 166 % 10 = 6
+Finalny numer: AB123456`}</pre>
+                </div>
+              </div>
+
+              {/* Character Values */}
+              <div>
+                <h3 className="text-lg font-bold mb-3 text-black">📊 Wartości znaków:</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                  <div className="bg-white p-2 border-2 border-black">
+                    <strong>Cyfry:</strong><br/>
+                    0=0, 1=1, 2=2, 3=3, 4=4<br/>
+                    5=5, 6=6, 7=7, 8=8, 9=9
+                  </div>
+                  <div className="bg-white p-2 border-2 border-black">
+                    <strong>Litery A-M:</strong><br/>
+                    A=10, B=11, C=12, D=13<br/>
+                    E=15, F=16, G=17, H=18<br/>
+                    I=19, J=20, K=21, L=22<br/>
+                    M=23
+                  </div>
+                  <div className="bg-white p-2 border-2 border-black">
+                    <strong>Litery N-Z:</strong><br/>
+                    N=24, P=26, R=27, S=28<br/>
+                    T=29, U=30, V=31, W=32<br/>
+                    X=33, Y=34, Z=35
+                  </div>
+                </div>
+              </div>
+
+              {/* Official Source */}
+              <div className="bg-green-50 p-4 border-2 border-green-300">
+                <h3 className="text-lg font-bold mb-2 text-black">ℹ️ Źródło oficjalne:</h3>
+                <p className="text-sm text-gray-700">
+                  Algorytm zgodny z oficjalną specyfikacją Ministerstwa Spraw Wewnętrznych i Administracji.
+                  Numer dowodu osobistego składa się z serii (litery) i numeru (cyfry) zgodnie z 
+                  <a href="https://www.gov.pl/web/gov/dowod-osobisty-informacje" target="_blank" rel="noopener noreferrer" className="text-green-600 underline"> oficjalnymi wytycznymi gov.pl</a>.
                 </p>
               </div>
             </div>

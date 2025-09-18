@@ -45,6 +45,15 @@ npm run dev
 - **Odświeżanie**: Użyj przycisku ↻ obok pola aby wygenerować nową wartość
 - **Odświeżanie wszystkich**: Użyj przycisku "Odśwież wszystkie dane" na dole strony
 
+## 📋 TODO
+
+Planowane funkcje do dodania:
+
+- **Adres e-dokumentów** - generowanie adresów elektronicznych dokumentów
+- **VIN** - generowanie numerów identyfikacyjnych pojazdów
+- **Numer rejestracyjny** - generowanie numerów rejestracyjnych pojazdów
+- **GUID** - Numer uid
+
 ## ⚠️ Uwaga
 
 Wszystkie generowane dane są **losowe i służą wyłącznie celom testowym**. Nie odpowiadają one rzeczywistym danym osób fizycznych lub prawnych.
