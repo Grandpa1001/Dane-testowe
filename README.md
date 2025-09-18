@@ -4,12 +4,15 @@ Aplikacja React do generowania polskich danych testowych takich jak PESEL, REGON
 
 ## 🚀 Funkcje
 
-- **Generowanie danych osobowych**: Imiona, nazwiska, PESEL, REGON
-- **Dokumenty**: Numery dowodów osobistych, paszportów, księgi wieczystej
+- **Generowanie danych osobowych**: Imiona, nazwiska, PESEL, REGON, NIP
+- **Dokumenty**: Numery dowodów osobistych, mDowód, paszportów, księgi wieczystej
 - **Finanse**: NRB, IBAN, SWIFT
+- **Inne**: GUID (UUID v4)
+- **Przełącznik płci**: Automatyczne generowanie imion i PESEL zależne od płci
 - **Kopiowanie do schowka**: Kliknij na pole aby skopiować wartość
 - **Odświeżanie**: Możliwość odświeżenia pojedynczego pola lub wszystkich danych
 - **Responsywny design**: Działa na wszystkich urządzeniach
+- **Automatyzacja**: Wszystkie pola mają unikalne ID dla testów automatycznych
 
 ## 🛠️ Technologie
 
@@ -45,6 +48,19 @@ npm run dev
 - **Odświeżanie**: Użyj przycisku ↻ obok pola aby wygenerować nową wartość
 - **Odświeżanie wszystkich**: Użyj przycisku "Odśwież wszystkie dane" na dole strony
 
+## ✅ Zaimplementowane algorytmy
+
+Wszystkie algorytmy zostały zaimplementowane zgodnie z oficjalnymi specyfikacjami:
+
+- **PESEL** - z uwzględnieniem płci i wieku (cyfra płci na pozycji 10)
+- **REGON** - obsługa formatów 9 i 14 cyfr z cyframi regionu
+- **NIP** - z poprawną cyfrą kontrolną (pierwsze 3 cyfry nie mogą być zerami)
+- **Numer dowodu osobistego** - z prefiksami A, C, D i cyfrą kontrolną
+- **mDowód** - format MA + 2 litery + 4 cyfry + cyfra kontrolna
+- **Numer paszportu** - prefiksy A/E + cyfra kontrolna
+- **Księga wieczysta** - z kodami sądów i cyfrą kontrolną
+- **GUID** - UUID v4 zgodny ze standardem
+
 ## 📋 TODO
 
 Planowane funkcje do dodania:
@@ -52,7 +68,6 @@ Planowane funkcje do dodania:
 - **Adres e-dokumentów** - generowanie adresów elektronicznych dokumentów
 - **VIN** - generowanie numerów identyfikacyjnych pojazdów
 - **Numer rejestracyjny** - generowanie numerów rejestracyjnych pojazdów
-- **GUID** - Numer uid
 
 ## ⚠️ Uwaga
 

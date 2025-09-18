@@ -6,6 +6,7 @@ interface TestData {
   lastName: string;
   pesel: string;
   regon: string;
+  nip: string;
   nrb: string;
   idNumber: string;
   mDowod: string;
@@ -22,6 +23,7 @@ function App() {
     lastName: '',
     pesel: '',
     regon: '',
+    nip: '',
     nrb: '',
     idNumber: '',
     mDowod: '',
@@ -38,12 +40,40 @@ function App() {
   const [showLandRegisterModal, setShowLandRegisterModal] = useState<boolean>(false);
   const [showMDowodModal, setShowMDowodModal] = useState<boolean>(false);
   const [showIDNumberModal, setShowIDNumberModal] = useState<boolean>(false);
+  const [gender, setGender] = useState<'K' | 'M' | 'K/M'>('K/M');
+
+  // Obsługa zmiany płci - przegenerowuje imię i PESEL
+  const handleGenderChange = (newGender: 'K' | 'M' | 'K/M') => {
+    setGender(newGender);
+    
+    // Przegeneruj imię i PESEL zgodnie z nową płcią
+    const newData = { ...data };
+    
+    // Generuj nowe imię
+    const selectedGender = newGender === 'K/M' ? (randomInt(0, 1) === 0 ? 'K' : 'M') : newGender;
+    newData.firstName = selectedGender === 'K' 
+      ? femaleNames[randomInt(0, femaleNames.length - 1)]
+      : maleNames[randomInt(0, maleNames.length - 1)];
+    
+    // Generuj nowy PESEL
+    newData.pesel = generatePESELWithGender(newGender);
+    
+    setData(newData);
+  };
 
   // Polskie imiona i nazwiska
-  const firstNames = [
-    'Anna', 'Piotr', 'Katarzyna', 'Tomasz', 'Agnieszka', 'Krzysztof', 'Barbara', 'Andrzej',
-    'Ewa', 'Jan', 'Aleksandra', 'Michał', 'Joanna', 'Paweł', 'Magdalena', 'Marcin',
-    'Monika', 'Łukasz', 'Teresa', 'Grzegorz', 'Maria', 'Adam', 'Justyna', 'Robert'
+  const maleNames = [
+    'Piotr', 'Tomasz', 'Krzysztof', 'Andrzej', 'Jan', 'Michał', 'Paweł', 'Marcin',
+    'Łukasz', 'Jakub', 'Mateusz', 'Dawid', 'Adrian', 'Bartosz', 'Kamil', 'Rafał',
+    'Kacper', 'Filip', 'Szymon', 'Krystian', 'Damian', 'Patryk', 'Mikołaj', 'Adam',
+    'Marek', 'Grzegorz', 'Tadeusz', 'Wojciech', 'Mariusz', 'Robert', 'Dariusz', 'Łukasz'
+  ];
+
+  const femaleNames = [
+    'Anna', 'Katarzyna', 'Agnieszka', 'Barbara', 'Ewa', 'Aleksandra', 'Joanna', 'Magdalena',
+    'Monika', 'Natalia', 'Karolina', 'Sylwia', 'Patrycja', 'Weronika', 'Klaudia', 'Paulina',
+    'Dominika', 'Martyna', 'Julia', 'Natalia', 'Wiktoria', 'Oliwia', 'Zuzanna', 'Amelia',
+    'Marta', 'Alicja', 'Dorota', 'Beata', 'Małgorzata', 'Iwona', 'Renata', 'Grażyna'
   ];
 
   const lastNames = [
@@ -59,49 +89,169 @@ function App() {
 
   // Generowanie PESEL
   const generatePESEL = (): string => {
-    const year = randomInt(1950, 2005);
-    const month = randomInt(1, 12);
-    const day = randomInt(1, 28);
-    const sex = randomInt(0, 1);
-    
-    let yearStr = year.toString().substring(2);
-    let monthStr = month.toString().padStart(2, '0');
-    
-    if (year >= 2000) {
-      monthStr = (month + 20).toString();
-    }
-    
-    const dayStr = day.toString().padStart(2, '0');
-    const serialNum = randomInt(100, 999).toString();
-    const sexDigit = sex.toString();
-    
-    const peselBase = yearStr + monthStr + dayStr + serialNum + sexDigit;
-    
-    // Obliczanie cyfry kontrolnej
-    const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
-    let sum = 0;
-    
-    for (let i = 0; i < 10; i++) {
-      sum += parseInt(peselBase[i]) * weights[i];
-    }
-    
-    const controlDigit = (10 - (sum % 10)) % 10;
-    
-    return peselBase + controlDigit.toString();
+    return generatePESELWithGender(gender);
   };
 
-  // Generowanie REGON
-  const generateREGON = (): string => {
-    const regonBase = randomInt(100000000, 999999999).toString();
-    const weights = [8, 9, 2, 3, 4, 5, 6, 7];
-    let sum = 0;
+  // Generowanie PESEL z uwzględnieniem płci - zgodnie z oficjalnym algorytmem
+  const generatePESELWithGender = (selectedGender: 'K' | 'M' | 'K/M'): string => {
+    const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
     
-    for (let i = 0; i < 8; i++) {
-      sum += parseInt(regonBase[i]) * weights[i];
+    // Generuj losową datę urodzenia (1900-2099)
+    const fullYear = randomInt(1900, 2099);
+    const y = fullYear % 100;
+    let m = randomInt(1, 12);
+    const d = randomInt(1, 28);
+    
+    // Dostosuj miesiąc dla różnych stuleci
+    if (fullYear >= 1800 && fullYear <= 1899) {
+      m += 80;
+    } else if (fullYear >= 2000 && fullYear <= 2099) {
+      m += 20;
+    } else if (fullYear >= 2100 && fullYear <= 2199) {
+      m += 40;
+    } else if (fullYear >= 2200 && fullYear <= 2299) {
+      m += 60;
     }
     
-    const controlDigit = sum % 11;
-    return regonBase + (controlDigit === 10 ? '0' : controlDigit.toString());
+    // Utwórz tablicę cyfr PESEL (10 pozycji przed cyfrą kontrolną)
+    const cyfry = [
+      Math.floor(y / 10),  // pozycja 1: rok - dziesiątki
+      y % 10,              // pozycja 2: rok - jednostki
+      Math.floor(m / 10),  // pozycja 3: miesiąc - dziesiątki
+      m % 10,              // pozycja 4: miesiąc - jednostki
+      Math.floor(d / 10),  // pozycja 5: dzień - dziesiątki
+      d % 10,              // pozycja 6: dzień - jednostki
+      randomInt(0, 9),     // pozycja 7: seria - pierwsza cyfra
+      randomInt(0, 9),     // pozycja 8: seria - druga cyfra
+      randomInt(0, 9),     // pozycja 9: seria - trzecia cyfra
+      0                    // pozycja 10: cyfra płci - zostanie ustawiona poniżej
+    ];
+    
+    // Ustaw cyfrę płci zgodnie z wyborem (pozycja 10)
+    if (selectedGender === 'K') {
+      // Kobiety: cyfra płci parzysta (0,2,4,6,8)
+      cyfry[9] = randomInt(0, 4) * 2;
+    } else if (selectedGender === 'M') {
+      // Mężczyźni: cyfra płci nieparzysta (1,3,5,7,9)
+      cyfry[9] = randomInt(0, 4) * 2 + 1;
+    } else {
+      // K/M: losowo
+      cyfry[9] = randomInt(0, 9);
+    }
+    
+    // Oblicz cyfrę kontrolną (pozycja 11)
+    let cyfra_kontrolna = 0;
+    for (let i = 0; i < cyfry.length; i++) {
+      cyfra_kontrolna += weights[i] * cyfry[i];
+    }
+    cyfra_kontrolna = (10 - (cyfra_kontrolna % 10)) % 10;
+    
+    // Połącz wszystkie cyfry: YYMMDDSSSCK
+    // gdzie C to cyfra płci (pozycja 10), K to cyfra kontrolna (pozycja 11)
+    const result = cyfry.join('') + cyfra_kontrolna;
+    return result;
+  };
+
+  // Generowanie REGON - zgodnie z oficjalnym algorytmem
+  const generateREGON = (): string => {
+    // Generuj 9-cyfrowy REGON (domyślnie)
+    return generateREGON9();
+  };
+
+  // Generowanie 9-cyfrowego REGON
+  const generateREGON9 = (): string => {
+    const weights = [8, 9, 2, 3, 4, 5, 6, 7];
+    
+    // Generuj cyfry regionu (nieparzyste liczby 1-99)
+    const regionDigits = randomInt(0, 49) * 2 + 1;
+    
+    // Pierwsze 2 cyfry to region
+    const cyfry = [
+      Math.floor(regionDigits / 10),
+      regionDigits % 10
+    ];
+    
+    // Pozostałe 6 cyfr (pozycje 2-7)
+    for (let i = 2; i < weights.length; i++) {
+      cyfry[i] = randomInt(0, 9);
+    }
+
+    // Oblicz cyfrę kontrolną
+    let cyfra_kontrolna = 0;
+    for (let i = 0; i < cyfry.length; i++) {
+      cyfra_kontrolna += weights[i] * cyfry[i];
+    }
+    cyfra_kontrolna = (cyfra_kontrolna % 11) % 10;
+
+    // Połącz wszystkie cyfry
+    let result = cyfry.join('');
+    result += cyfra_kontrolna;
+    return result;
+  };
+
+  // Generowanie 14-cyfrowego REGON
+  const generateREGON14 = (): string => {
+    const weights = [2, 4, 8, 5, 0, 9, 7, 3, 6, 1, 2, 4, 8];
+    
+    // Zacznij od 9-cyfrowego REGON
+    const regon9 = generateREGON9();
+    
+    // Skopiuj cyfry z 9-cyfrowego REGON
+    const cyfry = [];
+    for (let i = 0; i < regon9.length; i++) {
+      cyfry[i] = parseInt(regon9.charAt(i));
+    }
+    
+    // Dodaj pozostałe 4 cyfry (pozycje 9-12)
+    for (let i = regon9.length; i < weights.length; i++) {
+      cyfry[i] = randomInt(0, 9);
+    }
+
+    // Oblicz cyfrę kontrolną
+    let cyfra_kontrolna = 0;
+    for (let i = 0; i < cyfry.length; i++) {
+      cyfra_kontrolna += weights[i] * cyfry[i];
+    }
+    cyfra_kontrolna = (cyfra_kontrolna % 11) % 10;
+
+    // Połącz wszystkie cyfry
+    let result = cyfry.join('');
+    result += cyfra_kontrolna;
+    return result;
+  };
+
+  // Generowanie NIP - zgodnie z oficjalnym algorytmem
+  const generateNIP = (): string => {
+    const weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
+    let cyfry: number[];
+    let cyfra_kontrolna: number;
+    
+    do {
+      // Generuj 9 cyfr (pierwsze 3 nie mogą być zerami)
+      cyfry = [
+        randomInt(1, 9), // pierwsza cyfra nie może być 0
+        randomInt(1, 9), // druga cyfra nie może być 0
+        randomInt(1, 9), // trzecia cyfra nie może być 0
+        randomInt(0, 9), // pozostałe cyfry mogą być 0-9
+        randomInt(0, 9),
+        randomInt(0, 9),
+        randomInt(0, 9),
+        randomInt(0, 9),
+        randomInt(0, 9)
+      ];
+
+      // Oblicz cyfrę kontrolną
+      cyfra_kontrolna = 0;
+      for (let i = 0; i < cyfry.length; i++) {
+        cyfra_kontrolna += weights[i] * cyfry[i];
+      }
+      cyfra_kontrolna %= 11;
+    } while (cyfra_kontrolna === 10); // Powtarzaj jeśli cyfra kontrolna = 10
+
+    // Połącz wszystkie cyfry
+    let result = cyfry.join('');
+    result += cyfra_kontrolna;
+    return result;
   };
 
   // Generowanie NRB
@@ -231,14 +381,43 @@ function App() {
     return (sum % 10).toString();
   };
 
-  // Generowanie numeru paszportu
+  // Generowanie numeru paszportu - zgodnie z oficjalnym algorytmem
   const generatePassportNumber = (): string => {
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const letter1 = letters[randomInt(0, 25)];
-    const letter2 = letters[randomInt(0, 25)];
-    const numbers = randomInt(1000000, 9999999).toString();
+    // Mapowanie znaków na wartości liczbowe (A=10, B=11, ..., Z=35)
+    const charValues: { [key: string]: number } = {};
+    for (let i = 0; i < 26; i++) {
+      charValues[String.fromCharCode(65 + i)] = 10 + i; // A=10, B=11, ..., Z=35
+    }
+    for (let i = 0; i < 10; i++) {
+      charValues[i.toString()] = i; // 0=0, 1=1, ..., 9=9
+    }
     
-    return letter1 + letter2 + numbers;
+    // Generuj bazowy numer paszportu: AE + litera + 6 cyfr
+    const firstLetter = 'AE'[randomInt(0, 1)]; // A lub E
+    const secondLetter = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[randomInt(0, 25)];
+    const digits = randomInt(100000, 999999).toString();
+    
+    let passport = firstLetter + secondLetter + digits;
+    
+    // Wagi dla obliczenia cyfry kontrolnej
+    const weights = [7, 3, 1, 7, 3, 1, 7, 3];
+    
+    // Oblicz sumę ważoną
+    let sum = 0;
+    for (let i = 0; i < passport.length; i++) {
+      const znak = passport.charAt(i);
+      const wartosc = charValues[znak];
+      const waga = weights[i];
+      sum += waga * wartosc;
+    }
+    
+    // Oblicz cyfrę kontrolną
+    const controlDigit = sum % 10;
+    
+    // Wstaw cyfrę kontrolną na pozycję 2 (po pierwszych dwóch literach)
+    passport = passport.substr(0, 2) + controlDigit.toString() + passport.substr(2);
+    
+    return passport;
   };
 
   // Generowanie numeru księgi wieczystej
@@ -369,11 +548,17 @@ function App() {
 
   // Generowanie wszystkich danych
   const generateAllData = (): TestData => {
+    const selectedGender = gender === 'K/M' ? (randomInt(0, 1) === 0 ? 'K' : 'M') : gender;
+    const firstName = selectedGender === 'K' 
+      ? femaleNames[randomInt(0, femaleNames.length - 1)]
+      : maleNames[randomInt(0, maleNames.length - 1)];
+    
     return {
-      firstName: firstNames[randomInt(0, firstNames.length - 1)],
+      firstName: firstName,
       lastName: lastNames[randomInt(0, lastNames.length - 1)],
-      pesel: generatePESEL(),
+      pesel: generatePESELWithGender(selectedGender),
       regon: generateREGON(),
+      nip: generateNIP(),
       nrb: generateNRB(),
       idNumber: generateIDNumber(),
       mDowod: generateMDowod(),
@@ -396,6 +581,58 @@ function App() {
     }
   };
 
+  // Odświeżanie pojedynczego pola
+  const refreshField = (fieldKey: keyof TestData) => {
+    const newData = { ...data };
+    
+    switch (fieldKey) {
+      case 'firstName':
+        const selectedGender = gender === 'K/M' ? (randomInt(0, 1) === 0 ? 'K' : 'M') : gender;
+        newData.firstName = selectedGender === 'K' 
+          ? femaleNames[randomInt(0, femaleNames.length - 1)]
+          : maleNames[randomInt(0, maleNames.length - 1)];
+        break;
+      case 'lastName':
+        newData.lastName = lastNames[randomInt(0, lastNames.length - 1)];
+        break;
+      case 'pesel':
+        newData.pesel = generatePESELWithGender(gender);
+        break;
+      case 'regon':
+        newData.regon = generateREGON();
+        break;
+      case 'nip':
+        newData.nip = generateNIP();
+        break;
+      case 'nrb':
+        newData.nrb = generateNRB();
+        break;
+      case 'idNumber':
+        newData.idNumber = generateIDNumber();
+        break;
+      case 'mDowod':
+        newData.mDowod = generateMDowod();
+        break;
+      case 'passportNumber':
+        newData.passportNumber = generatePassportNumber();
+        break;
+      case 'landRegisterNumber':
+        newData.landRegisterNumber = generateLandRegisterNumber();
+        break;
+      case 'swift':
+        newData.swift = generateSWIFT();
+        break;
+      case 'iban':
+        newData.iban = generateIBAN();
+        break;
+      case 'guid':
+        newData.guid = generateGUID();
+        break;
+    }
+    
+    setData(newData);
+  };
+
   // Kopiowanie kodu
   const copyCode = async (code: string) => {
     try {
@@ -406,14 +643,6 @@ function App() {
     }
   };
 
-  // Odświeżanie pojedynczego pola
-  const refreshField = (fieldName: keyof TestData) => {
-    const newData = generateAllData();
-    setData(prevData => ({
-      ...prevData,
-      [fieldName]: newData[fieldName]
-    }));
-  };
 
   // Inicjalizacja danych przy uruchomieniu
   useEffect(() => {
@@ -425,6 +654,7 @@ function App() {
     { key: 'lastName' as keyof TestData, label: 'Nazwisko' },
     { key: 'pesel' as keyof TestData, label: 'PESEL' },
     { key: 'regon' as keyof TestData, label: 'REGON' },
+    { key: 'nip' as keyof TestData, label: 'NIP' },
     { key: 'nrb' as keyof TestData, label: 'NRB' },
     { key: 'idNumber' as keyof TestData, label: 'Numer dowodu' },
     { key: 'mDowod' as keyof TestData, label: 'mDowód' },
@@ -490,75 +720,43 @@ function App() {
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-6">
-        <div id="fields-container" data-testid="fields-container" className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {fields.map((field) => (
+        <div id="fields-container" data-testid="fields-container" className="space-y-3">
+          {/* Pierwszy rząd: Imię i Nazwisko */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Pole Imię */}
             <div
-              key={field.key}
-              id={`field-container-${field.key}`}
-              data-testid={`field-container-${field.key}`}
-              data-field-type={field.key}
-              data-field-label={field.label}
+              id="field-container-firstName"
+              data-testid="field-container-firstName"
+              data-field-type="firstName"
+              data-field-label="Imię"
               className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative"
             >
-              {/* Tooltip button for land register */}
-              {field.key === 'landRegisterNumber' && (
-                <button
-                  onClick={() => setShowLandRegisterModal(true)}
-                  className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
-                  title="Jak obliczana jest cyfra kontrolna?"
-                >
-                  <Info size={12} />
-                </button>
-              )}
-
-              {/* Tooltip button for mDowód */}
-              {field.key === 'mDowod' && (
-                <button
-                  onClick={() => setShowMDowodModal(true)}
-                  className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
-                  title="Jak generowany jest mDowód?"
-                >
-                  <Info size={12} />
-                </button>
-              )}
-
-              {/* Tooltip button for ID Number */}
-              {field.key === 'idNumber' && (
-                <button
-                  onClick={() => setShowIDNumberModal(true)}
-                  className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
-                  title="Jak generowany jest numer dowodu osobistego?"
-                >
-                  <Info size={12} />
-                </button>
-              )}
-              
               <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
-                {field.label}
+                Imię
                 <span className="text-gray-500 font-normal normal-case ml-2">
-                  ID: input-{field.key}
+                  ID: input-firstName
                 </span>
               </label>
               
               <div className="flex gap-2">
                 <input
-                  id={`input-${field.key}`}
-                  data-testid={`input-${field.key}`}
-                  data-field-type={field.key}
-                  data-field-label={field.label}
+                  id="input-firstName"
+                  data-testid="input-firstName"
+                  data-field-type="firstName"
+                  data-field-label="Imię"
                   type="text"
-                  value={data[field.key]}
+                  value={data.firstName}
                   readOnly
-                  onClick={() => copyToClipboard(data[field.key], field.key)}
+                  onClick={() => copyToClipboard(data.firstName, 'firstName')}
                   className="flex-1 px-2 py-1 border border-gray-300 text-sm font-mono bg-gray-50 cursor-pointer hover:bg-gray-100 focus:outline-none focus:border-black transition-colors"
                   placeholder="Kliknij aby skopiować"
                 />
                 <button
-                  id={`refresh-${field.key}`}
-                  data-testid={`refresh-${field.key}`}
-                  data-field-type={field.key}
+                  id="refresh-firstName"
+                  data-testid="refresh-firstName"
+                  data-field-type="firstName"
                   data-action="refresh-field"
-                  onClick={() => refreshField(field.key)}
+                  onClick={() => refreshField('firstName')}
                   className="px-2 py-1 bg-black text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
                   title="Odśwież"
                 >
@@ -566,7 +764,225 @@ function App() {
                 </button>
               </div>
             </div>
-          ))}
+
+            {/* Pole Nazwisko */}
+            <div
+              id="field-container-lastName"
+              data-testid="field-container-lastName"
+              data-field-type="lastName"
+              data-field-label="Nazwisko"
+              className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative"
+            >
+              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
+                Nazwisko
+                <span className="text-gray-500 font-normal normal-case ml-2">
+                  ID: input-lastName
+                </span>
+              </label>
+              
+              <div className="flex gap-2">
+                <input
+                  id="input-lastName"
+                  data-testid="input-lastName"
+                  data-field-type="lastName"
+                  data-field-label="Nazwisko"
+                  type="text"
+                  value={data.lastName}
+                  readOnly
+                  onClick={() => copyToClipboard(data.lastName, 'lastName')}
+                  className="flex-1 px-2 py-1 border border-gray-300 text-sm font-mono bg-gray-50 cursor-pointer hover:bg-gray-100 focus:outline-none focus:border-black transition-colors"
+                  placeholder="Kliknij aby skopiować"
+                />
+                <button
+                  id="refresh-lastName"
+                  data-testid="refresh-lastName"
+                  data-field-type="lastName"
+                  data-action="refresh-field"
+                  onClick={() => refreshField('lastName')}
+                  className="px-2 py-1 bg-black text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                  title="Odśwież"
+                >
+                  <RefreshCw size={14} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Drugi rząd: Płeć i PESEL */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Przełącznik płci */}
+            <div className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative">
+              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
+                Płeć
+                <span className="text-gray-500 font-normal normal-case ml-2">
+                  ID: gender-switch
+                </span>
+              </label>
+              
+              <div className="flex gap-2">
+                <div className="flex-1 flex bg-gray-100 border border-gray-300 rounded">
+                  <button
+                    id="gender-k"
+                    data-testid="gender-k"
+                    onClick={() => handleGenderChange('K')}
+                    className={`flex-1 px-3 py-1 text-xs font-bold transition-colors ${
+                      gender === 'K' 
+                        ? 'bg-black text-white' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Kobieta
+                  </button>
+                  <button
+                    id="gender-m"
+                    data-testid="gender-m"
+                    onClick={() => handleGenderChange('M')}
+                    className={`flex-1 px-3 py-1 text-xs font-bold transition-colors ${
+                      gender === 'M' 
+                        ? 'bg-black text-white' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Mężczyzna
+                  </button>
+                  <button
+                    id="gender-km"
+                    data-testid="gender-km"
+                    onClick={() => handleGenderChange('K/M')}
+                    className={`flex-1 px-3 py-1 text-xs font-bold transition-colors ${
+                      gender === 'K/M' 
+                        ? 'bg-black text-white' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    K/M
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Pole PESEL */}
+            <div
+              id="field-container-pesel"
+              data-testid="field-container-pesel"
+              data-field-type="pesel"
+              data-field-label="PESEL"
+              className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative"
+            >
+              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
+                PESEL
+                <span className="text-gray-500 font-normal normal-case ml-2">
+                  ID: input-pesel
+                </span>
+              </label>
+              
+              <div className="flex gap-2">
+                <input
+                  id="input-pesel"
+                  data-testid="input-pesel"
+                  data-field-type="pesel"
+                  data-field-label="PESEL"
+                  type="text"
+                  value={data.pesel}
+                  readOnly
+                  onClick={() => copyToClipboard(data.pesel, 'pesel')}
+                  className="flex-1 px-2 py-1 border border-gray-300 text-sm font-mono bg-gray-50 cursor-pointer hover:bg-gray-100 focus:outline-none focus:border-black transition-colors"
+                  placeholder="Kliknij aby skopiować"
+                />
+                <button
+                  id="refresh-pesel"
+                  data-testid="refresh-pesel"
+                  data-field-type="pesel"
+                  data-action="refresh-field"
+                  onClick={() => refreshField('pesel')}
+                  className="px-2 py-1 bg-black text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                  title="Odśwież"
+                >
+                  <RefreshCw size={14} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Pozostałe pola w standardowym układzie */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {fields.filter(field => !['firstName', 'lastName', 'pesel'].includes(field.key)).map((field) => (
+              <div
+                key={field.key}
+                id={`field-container-${field.key}`}
+                data-testid={`field-container-${field.key}`}
+                data-field-type={field.key}
+                data-field-label={field.label}
+                className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative"
+              >
+                {/* Tooltip button for land register */}
+                {field.key === 'landRegisterNumber' && (
+                  <button
+                    onClick={() => setShowLandRegisterModal(true)}
+                    className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
+                    title="Jak obliczana jest cyfra kontrolna?"
+                  >
+                    <Info size={12} />
+                  </button>
+                )}
+
+                {/* Tooltip button for mDowód */}
+                {field.key === 'mDowod' && (
+                  <button
+                    onClick={() => setShowMDowodModal(true)}
+                    className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
+                    title="Jak generowany jest mDowód?"
+                  >
+                    <Info size={12} />
+                  </button>
+                )}
+
+                {/* Tooltip button for ID Number */}
+                {field.key === 'idNumber' && (
+                  <button
+                    onClick={() => setShowIDNumberModal(true)}
+                    className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
+                    title="Jak generowany jest numer dowodu osobistego?"
+                  >
+                    <Info size={12} />
+                  </button>
+                )}
+                
+                <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
+                  {field.label}
+                  <span className="text-gray-500 font-normal normal-case ml-2">
+                    ID: input-{field.key}
+                  </span>
+                </label>
+                
+                <div className="flex gap-2">
+                  <input
+                    id={`input-${field.key}`}
+                    data-testid={`input-${field.key}`}
+                    data-field-type={field.key}
+                    data-field-label={field.label}
+                    type="text"
+                    value={data[field.key]}
+                    readOnly
+                    onClick={() => copyToClipboard(data[field.key], field.key)}
+                    className="flex-1 px-2 py-1 border border-gray-300 text-sm font-mono bg-gray-50 cursor-pointer hover:bg-gray-100 focus:outline-none focus:border-black transition-colors"
+                    placeholder="Kliknij aby skopiować"
+                  />
+                  <button
+                    id={`refresh-${field.key}`}
+                    data-testid={`refresh-${field.key}`}
+                    data-field-type={field.key}
+                    data-action="refresh-field"
+                    onClick={() => refreshField(field.key)}
+                    className="px-2 py-1 bg-black text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                    title="Odśwież"
+                  >
+                    <RefreshCw size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Refresh All Button */}
@@ -638,6 +1054,9 @@ function App() {
                   </div>
                   <div className="bg-white p-2 border-2 border-black">
                     <strong className="text-black">REGON:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-regon</code>
+                  </div>
+                  <div className="bg-white p-2 border-2 border-black">
+                    <strong className="text-black">NIP:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-nip</code>
                   </div>
                   <div className="bg-white p-2 border-2 border-black">
                     <strong className="text-black">NRB:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-nrb</code>
