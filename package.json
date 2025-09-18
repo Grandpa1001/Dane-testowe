@@ -1,8 +1,12 @@
 {
-  "name": "dane-testowe-mgrgracz",
+  "name": "generator-danych-testowych",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Bezpłatny generator polskich danych testowych: PESEL, REGON, NIP, numer dowodu osobistego, mDowód, paszport, księga wieczysta, NRB, IBAN, SWIFT, GUID",
+  "keywords": ["generator", "dane", "testowe", "PESEL", "REGON", "NIP", "dowód", "paszport", "testy", "automatyczne"],
+  "author": "Grandpa1001",
+  "homepage": "https://dane-testowe.netlify.app/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

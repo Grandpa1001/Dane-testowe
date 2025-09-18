@@ -668,14 +668,17 @@ function App() {
   return (
     <div id="app-container" data-testid="app-container" className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-white border-b-2 border-black">
+      <header className="bg-white border-b-2 border-black">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-center md:text-left">
               <h1 className="text-3xl md:text-4xl font-black text-black mb-2">
-                Generator Danych
+                Generator Danych Testowych
               </h1>
               <p className="text-gray-600 text-sm">
+                PESEL, REGON, NIP, dowód osobisty, mDowód, paszport, księga wieczysta, NRB, IBAN, SWIFT, GUID
+              </p>
+              <p className="text-gray-500 text-xs mt-1">
                 Kliknij pole aby skopiować • Użyj ↻ do odświeżania
               </p>
               <div className="bg-gray-50 border-2 border-black p-2 mt-2 text-xs">
