@@ -44,7 +44,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 # Inicjalizacja drivera
 driver = webdriver.Chrome()
-driver.get("http://localhost:5173")
+driver.get("https://dane-testowe.netlify.app/")
 
 # Oczekiwanie na załadowanie aplikacji
 wait = WebDriverWait(driver, 10)
@@ -86,7 +86,7 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch();
   const page = await browser.newPage();
   
-  await page.goto('http://localhost:5173');
+  await page.goto('https://dane-testowe.netlify.app/');
   
   // Oczekiwanie na załadowanie aplikacji
   await page.waitForSelector('#app-container');
@@ -121,7 +121,7 @@ const { chromium } = require('playwright');
 ```javascript
 describe('Generator Danych', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:5173');
+    cy.visit('https://dane-testowe.netlify.app/');
   });
 
   it('powinien wyświetlać wszystkie pola', () => {
@@ -201,8 +201,8 @@ console.log(getAllTestData());
 
 ## 🚀 Uruchamianie Testów
 
-1. Upewnij się, że aplikacja działa na `http://localhost:5173`
-2. Uruchom serwer deweloperski: `npm run dev`
+1. **Produkcja:** Aplikacja dostępna na `https://dane-testowe.netlify.app/`
+2. **Development:** Uruchom serwer deweloperski: `npm run dev` (localhost:5173)
 3. Uruchom swoje testy automatyzacji
 4. Dane będą automatycznie generowane przy każdym odświeżeniu strony
 

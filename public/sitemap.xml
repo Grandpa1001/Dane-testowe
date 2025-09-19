@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://dane-testowe.netlify.app/</loc>
-    <lastmod>2024-01-20</lastmod>
+    <lastmod>2024-12-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://dane-testowe.netlify.app/WasiHead.png</image:loc>
+      <image:title>Generator Danych Testowych - Logo Wasi</image:title>
+      <image:caption>Bezpłatny generator polskich danych testowych dla deweloperów i testerów</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://dane-testowe.netlify.app/llms.txt</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

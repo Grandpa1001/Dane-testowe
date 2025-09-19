@@ -1147,7 +1147,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 driver = webdriver.Chrome()
-driver.get("http://localhost:5173")
+driver.get("https://dane-testowe.netlify.app/")
 
 # Pobieranie wartości PESEL
 pesel = driver.find_element(By.ID, "input-pesel")
@@ -1171,7 +1171,7 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch();
   const page = await browser.newPage();
   
-  await page.goto('http://localhost:5173');
+  await page.goto('https://dane-testowe.netlify.app/');
   
   // Pobieranie wartości PESEL
   const peselValue = await page.inputValue('#input-pesel');
@@ -1206,7 +1206,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 driver = webdriver.Chrome()
-driver.get("http://localhost:5173")
+driver.get("https://dane-testowe.netlify.app/")
 
 # Pobieranie wartości PESEL
 pesel = driver.find_element(By.ID, "input-pesel")
@@ -1230,7 +1230,7 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch();
   const page = await browser.newPage();
   
-  await page.goto('http://localhost:5173');
+  await page.goto('https://dane-testowe.netlify.app/');
   
   // Pobieranie wartości PESEL
   const peselValue = await page.inputValue('#input-pesel');
@@ -1260,7 +1260,7 @@ const { chromium } = require('playwright');
                   <li>• Każde pole ma zarówno <code className="bg-white border border-black px-1 font-mono">id</code> jak i <code className="bg-white border border-black px-1 font-mono">data-testid</code></li>
                   <li>• Użyj <code className="bg-white border border-black px-1 font-mono">By.ID</code> lub <code className="bg-white border border-black px-1 font-mono">By.CSS_SELECTOR</code> w Selenium</li>
                   <li>• Wartości są automatycznie generowane przy każdym odświeżeniu</li>
-                  <li>• Aplikacja musi być uruchomiona na <code className="bg-white border border-black px-1 font-mono">http://localhost:5173</code></li>
+                  <li>• Aplikacja dostępna na <code className="bg-white border border-black px-1 font-mono">https://dane-testowe.netlify.app/</code></li>
                   <li>• Pełna dokumentacja w pliku <code className="bg-white border border-black px-1 font-mono">TESTING.md</code></li>
                 </ul>
               </div>

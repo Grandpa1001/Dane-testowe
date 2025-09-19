@@ -1,0 +1,152 @@
+# Generator Danych Testowych - Informacje dla LLM
+
+## O stronie
+Generator Danych Testowych to bezpłatne narzędzie webowe do generowania polskich danych testowych dla aplikacji i testów automatycznych.
+
+**URL:** https://dane-testowe.netlify.app/
+**Autor:** Grandpa1001
+**Technologie:** React, TypeScript, Tailwind CSS
+**Licencja:** MIT
+
+## Funkcjonalności
+
+### Generowane dane:
+- **PESEL** - z walidacją płci (K/M) i prawidłową cyfrą kontrolną
+- **REGON** - 9 i 14 cyfr z oficjalnym algorytmem walidacji
+- **NIP** - z cyfrą kontrolną zgodną z polskim standardem
+- **Numer dowodu osobistego** - format ABC012345 (3 litery + cyfra kontrolna + 5 cyfr)
+- **mDowód** - format MAXXYYYY dla systemu mObywatel
+- **Numer paszportu** - z walidacją cyfry kontrolnej
+- **Księga wieczysta** - z oficjalnymi kodami sądów
+- **NRB** - polski numer rachunku bankowego
+- **IBAN** - polski numer IBAN z walidacją
+- **SWIFT** - kod SWIFT banku
+- **GUID/UUID v4** - unikalne identyfikatory
+- **Polskie imiona i nazwiska** - realistyczne dane
+
+### Funkcje automatyzacji:
+- Każde pole ma unikalny ID (np. `input-pesel`, `input-regon`)
+- Automatyczne kopiowanie do schowka
+- Przyciski odświeżania dla każdego pola
+- Instrukcje dla Selenium, Playwright, Cypress
+- Responsywny design
+
+## Algorytmy walidacji
+
+### PESEL:
+- 11 cyfr z cyfrą kontrolną
+- Walidacja płci (pozycja 10: parzysta=kobieta, nieparzysta=mężczyzna)
+- Walidacja daty urodzenia
+- Wagi: [1,3,7,9,1,3,7,9,1,3]
+
+### Numer dowodu osobistego:
+- Format: ABC012345 (3 litery + cyfra kontrolna + 5 cyfr)
+- Wartości liter: A=10, B=11, ..., Z=35
+- Wagi: [7,3,1,7,3,1,7,3]
+- Cyfra kontrolna: suma % 10
+
+### REGON:
+- 9 cyfr z cyfrą kontrolną
+- Wagi: [8,9,2,3,4,5,6,7]
+- Walidacja regionu (nieparzyste liczby 1-99)
+
+### NIP:
+- 10 cyfr z cyfrą kontrolną
+- Wagi: [6,5,7,2,3,4,5,6,7]
+- Pierwsze 3 cyfry nie mogą być zerami
+
+## Instrukcje dla testerów
+
+### Selenium (Python):
+```python
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+driver = webdriver.Chrome()
+driver.get("https://dane-testowe.netlify.app/")
+
+# Pobierz PESEL
+pesel = driver.find_element(By.ID, "input-pesel").get_attribute("value")
+print(f"PESEL: {pesel}")
+
+# Pobierz wszystkie dane
+fields = ["firstName", "lastName", "pesel", "regon", "nip"]
+for field in fields:
+    element = driver.find_element(By.ID, f"input-{field}")
+    print(f"{field}: {element.get_attribute('value')}")
+```
+
+### Playwright (JavaScript):
+```javascript
+const { chromium } = require('playwright');
+
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  
+  await page.goto('https://dane-testowe.netlify.app/');
+  
+  const peselValue = await page.inputValue('#input-pesel');
+  console.log('PESEL:', peselValue);
+  
+  await browser.close();
+})();
+```
+
+## Struktura ID pól
+
+| Pole | ID | Opis |
+|------|----|----- |
+| Imię | input-firstName | Polskie imiona |
+| Nazwisko | input-lastName | Polskie nazwiska |
+| PESEL | input-pesel | 11 cyfr z walidacją |
+| REGON | input-regon | 9 cyfr z walidacją |
+| NIP | input-nip | 10 cyfr z walidacją |
+| NRB | input-nrb | Numer rachunku bankowego |
+| Dowód | input-idNumber | ABC012345 |
+| mDowód | input-mDowod | MAXXYYYY |
+| Paszport | input-passportNumber | Numer paszportu |
+| Księga | input-landRegisterNumber | Kod sądu/numer/cyfra |
+| SWIFT | input-swift | Kod SWIFT |
+| IBAN | input-iban | Polski IBAN |
+| GUID | input-guid | UUID v4 |
+
+## Przyciski odświeżania
+
+Każde pole ma przycisk odświeżania z ID `refresh-{fieldName}`:
+- refresh-firstName
+- refresh-pesel
+- refresh-regon
+- itd.
+
+Przycisk "Odśwież wszystkie" ma ID: `refresh-all-button`
+
+## Zastosowania
+
+- **Testy automatyczne** - generowanie danych testowych
+- **Rozwój aplikacji** - mock data dla frontend/backend
+- **QA Testing** - testowanie formularzy z polskimi danymi
+- **Prototypowanie** - szybkie wypełnianie formularzy
+- **Edukacja** - nauka algorytmów walidacji polskich dokumentów
+
+## Ograniczenia
+
+- Dane są generowane losowo i nie odpowiadają rzeczywistym osobom
+- Służą wyłącznie celom testowym i edukacyjnym
+- Nie należy ich używać w rzeczywistych aplikacjach produkcyjnych
+- Algorytmy mogą nie być w 100% zgodne z oficjalnymi standardami
+
+## Kontakt
+
+- **GitHub:** https://github.com/Grandpa1001
+- **Website:** https://mgrgracz.netlify.app/
+- **Email:** przez GitHub
+
+## Aktualizacje
+
+- **2024-12-19:** Poprawka algorytmu numeru dowodu osobistego zgodnie z walidatorem testerzy.pl
+- **2024-01-01:** Pierwsza wersja generatora
+
+---
+
+*Ta strona jest zoptymalizowana dla wyszukiwarek AI i zawiera szczegółowe informacje o funkcjonalnościach i zastosowaniach generatora danych testowych.*

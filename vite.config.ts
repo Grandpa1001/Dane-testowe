@@ -18,6 +18,8 @@ export default defineConfig({
     }
   },
   server: {
+    port: 5173,
+    strictPort: true,
     headers: {
       'Cache-Control': 'public, max-age=31536000'
     }
