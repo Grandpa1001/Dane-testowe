@@ -40,6 +40,7 @@ function App() {
   const [showLandRegisterModal, setShowLandRegisterModal] = useState<boolean>(false);
   const [showMDowodModal, setShowMDowodModal] = useState<boolean>(false);
   const [showIDNumberModal, setShowIDNumberModal] = useState<boolean>(false);
+  const [showIBANModal, setShowIBANModal] = useState<boolean>(false);
   const [gender, setGender] = useState<'K' | 'M' | 'K/M'>('K/M');
 
   // Obsługa zmiany płci - przegenerowuje imię i PESEL
@@ -266,68 +267,47 @@ function App() {
     return checkDigits + bankCode + '0000' + accountNumber;
   };
 
-  // Generowanie numeru dowodu osobistego
+  // Generowanie numeru dowodu osobistego - zgodnie z walidatorem testerzy.pl
   const generateIDNumber = (): string => {
-    const letters = 'ABCDEFGHIJKLMNPRSTUVWXYZ'; // Bez O i Q jak w oryginalnym algorytmie
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; // Pełny alfabet z O i Q
     
-    // Generuj prefiks zgodnie z algorytmem walidatora
-    let prefix: string;
-    const randomCase = randomInt(0, 5);
-    
-    if (randomCase <= 2) {
-      // 60% szans - A + litera
-      prefix = 'A' + letters[randomInt(0, letters.length - 1)];
-    } else if (randomCase === 3) {
-      // 20% szans - C + litera A-I
-      const limitedLetters = 'ABCDEFGHI';
-      prefix = 'C' + limitedLetters[randomInt(0, limitedLetters.length - 1)];
-    } else {
-      // 20% szans - D + litera A-H
-      const limitedLetters = 'ABCDEFGH';
-      prefix = 'D' + limitedLetters[randomInt(0, limitedLetters.length - 1)];
+    // Generuj 3 litery
+    let lettersPart = '';
+    for (let i = 0; i < 3; i++) {
+      lettersPart += letters[randomInt(0, letters.length - 1)];
     }
     
-    // Generuj kolejną literę
-    const letter = letters[randomInt(0, letters.length - 1)];
+    // Generuj 5 cyfr (nie 6!)
+    const digitsPart = randomInt(10000, 99999).toString();
     
-    // Generuj 5 losowych cyfr
-    const randomNumbers = randomInt(10000, 99999).toString();
+    // Oblicz cyfrę kontrolną zgodnie z walidatorem testerzy.pl
+    const controlDigit = calculateIDControlDigit(lettersPart, digitsPart);
     
-    // Utwórz bazowy numer (prefiks + litera + 5 cyfr)
-    const baseNumber = prefix + letter + randomNumbers;
-    
-    // Oblicz cyfrę kontrolną z pierwszych 7 znaków
-    const controlDigit = calculateIDControlDigit(baseNumber);
-    
-    // Wstaw cyfrę kontrolną na pozycję 3 (po prefiks + litera)
-    return baseNumber.substring(0, 3) + controlDigit + baseNumber.substring(3);
+    // Zwróć numer w formacie: 3 litery + cyfra kontrolna + 5 cyfr
+    return lettersPart + controlDigit + digitsPart;
   };
 
-  // Funkcja obliczająca cyfrę kontrolną dla numeru dowodu osobistego
-  const calculateIDControlDigit = (idString: string): string => {
-    // Wagi dla kolejnych siedmiu pozycji: [P1, P2, L, C1, C2, C3, C4]
-    const weights = [7, 3, 1, 7, 3, 1, 7];
+  // Funkcja obliczająca cyfrę kontrolną dla numeru dowodu osobistego - zgodnie z walidatorem testerzy.pl
+  const calculateIDControlDigit = (lettersPart: string, digitsPart: string): string => {
+    // Wartości liter zgodnie z walidatorem: A=10, B=11, C=12, ..., Z=35
+    const letterValues: { [key: string]: number } = {
+      "A": 10, "B": 11, "C": 12, "D": 13, "E": 14, "F": 15, "G": 16, "H": 17, "I": 18, "J": 19, "K": 20,
+      "L": 21, "M": 22, "N": 23, "O": 24, "P": 25, "Q": 26, "R": 27, "S": 28, "T": 29, "U": 30, "V": 31,
+      "W": 32, "X": 33, "Y": 34, "Z": 35
+    };
     
-    let sum = 0;
+    // Wagi zgodnie z walidatorem: [7, 3, 1, 7, 3, 1, 7, 3]
+    const controlSum = 7 * letterValues[lettersPart[0]] + 
+                      3 * letterValues[lettersPart[1]] + 
+                      1 * letterValues[lettersPart[2]] +
+                      7 * parseInt(digitsPart[0]) + 
+                      3 * parseInt(digitsPart[1]) + 
+                      1 * parseInt(digitsPart[2]) + 
+                      7 * parseInt(digitsPart[3]) + 
+                      3 * parseInt(digitsPart[4]);
     
-    for (let i = 0; i < 7; i++) {
-      const char = idString[i];
-      let value: number;
-      
-      if (char >= 'A' && char <= 'Z') {
-        // Litery: A=10, B=11, C=12, ..., Z=35
-        value = char.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
-      } else if (char >= '0' && char <= '9') {
-        // Cyfry: 0=0, 1=1, 2=2, ..., 9=9
-        value = parseInt(char);
-      } else {
-        value = 0;
-      }
-      
-      sum += value * weights[i];
-    }
-    
-    return (sum % 10).toString();
+    // Cyfra kontrolna zgodnie z walidatorem: suma % 10
+    return (controlSum % 10).toString();
   };
 
   // Generowanie numeru mDowód (dowód osobisty w systemie mObywatel)
@@ -519,10 +499,27 @@ function App() {
     return swift;
   };
 
-  // Generowanie IBAN
+  // Generowanie IBAN - zgodnie z oficjalnym algorytmem
   const generateIBAN = (): string => {
-    const nrb = generateNRB();
-    return 'PL' + randomInt(10, 99).toString() + nrb;
+    const unitCodes = ["10100000", "10100039", "10100055", "10100068", "10101010", "10101023", "10101049", "10101078", "10101140", "10101212", "10101238", "10101270", "10101339", "10101371", "10101397", "10101401", "10101469", "10101528", "10101599", "10101674", "10101704", "10200003", "10200016", "10200029", "10200032", "10200045", "10200058", "10200061", "10200074", "10201013", "10201026", "10201042", "10201055", "10201068", "10201097", "10201127", "10201156", "10201169", "10201185", "10201260", "10201332", "10201390", "10201433", "10201462", "10201475", "10201491", "10201505", "10201563", "10201592", "10201664", "10201752", "10201778", "10201811", "10201853", "10201866", "10201879", "10201909", "10201912", "10201954", "10201967", "10202036", "10202124", "10202137", "10202212", "10202241", "10202267", "10202313", "10202368", "10202384", "10202401", "10202430", "10202472", "10202498", "10202528", "10202629", "10202645", "10202674", "10202733", "10202746", "10202762", "10202791", "10202821", "10202847", "10202892", "10202906", "10202964", "10202980", "10203017", "10203088", "10203121", "10203147", "10203150", "10203176", "10203206", "10203219", "10203235", "10203352", "10203378", "10203408", "10203437", "10203440", "10203453", "10203466", "10203541", "10203570", "10203583", "10203613", "10203639", "10203668", "10203714", "10203802", "10203844", "10203903", "10203916", "10203958", "10203974", "10204027", "10204115", "10204128", "10204144", "10204160", "10204274", "10204287", "10204317", "10204391", "10204405", "10204476", "10204564", "10204580", "10204649", "10204665", "10204681", "10204708", "10204724", "10204753", "10204795", "10204812", "10204867", "10204870", "10204900", "10204913", "10204926", "10204939", "10204955", "10204984", "10205011", "10205024", "10205040", "10205095", "10205112", "10205138", "10205170", "10205200", "10205226", "10205242", "10205297", "10205356", "10205385", "10205402", "10205460", "10205558", "10205561", "10205574", "10205587", "10205590", "10205604", "10205617", "10205620", "10205633", "10205659"];
+    
+    // Wybierz losowy kod jednostki
+    const unitCode = unitCodes[randomInt(0, unitCodes.length - 1)];
+    
+    // Generuj losową część (16 cyfr)
+    const randomPart = randomInt(0, 9999999999999999).toString().padStart(16, '0');
+    
+    // Połącz kod jednostki z losową częścią
+    const base = unitCode + randomPart;
+    
+    // Oblicz sumę kontrolną IBAN
+    const baseNumber = BigInt(base + "252100"); // 252100 to kod dla Polski
+    const remainder = baseNumber % BigInt(97);
+    const controlNumber = 98 - Number(remainder);
+    const controlSum = controlNumber.toString().padStart(2, '0');
+    
+    // Zwróć IBAN w formacie PL + suma kontrolna + kod jednostki + losowa część
+    return 'PL' + controlSum + base;
   };
 
   // Generowanie GUID/UUID v4
@@ -676,7 +673,7 @@ function App() {
                 Generator Danych Testowych
               </h1>
               <p className="text-gray-600 text-sm">
-                PESEL, REGON, NIP, dowód osobisty, mDowód, paszport, księga wieczysta, NRB, IBAN, SWIFT, GUID
+                PESEL, REGON, NIP, dowód osobisty (ABC012345), mDowód, paszport, księga wieczysta, NRB, IBAN, SWIFT, GUID
               </p>
               <p className="text-gray-500 text-xs mt-1">
                 Kliknij pole aby skopiować • Użyj ↻ do odświeżania
@@ -945,7 +942,18 @@ function App() {
                   <button
                     onClick={() => setShowIDNumberModal(true)}
                     className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
-                    title="Jak generowany jest numer dowodu osobistego?"
+                    title="Jak generowany jest numer dowodu osobistego? (3 litery + cyfra kontrolna + 5 cyfr)"
+                  >
+                    <Info size={12} />
+                  </button>
+                )}
+
+                {/* Tooltip button for IBAN */}
+                {field.key === 'iban' && (
+                  <button
+                    onClick={() => setShowIBANModal(true)}
+                    className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
+                    title="Informacja o algorytmie IBAN"
                   >
                     <Info size={12} />
                   </button>
@@ -1065,7 +1073,7 @@ function App() {
                     <strong className="text-black">NRB:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-nrb</code>
                   </div>
                   <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">Dowód:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-idNumber</code>
+                    <strong className="text-black">Dowód (ABC012345):</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-idNumber</code>
                   </div>
                   <div className="bg-white p-2 border-2 border-black">
                     <strong className="text-black">mDowód:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-mDowod</code>
@@ -1547,13 +1555,12 @@ Finalny numer: MAAAB12341`}</pre>
               <div className="bg-gray-50 p-4 border-2 border-black">
                 <h3 className="text-lg font-bold mb-2 text-black">📋 Struktura numeru dowodu osobistego:</h3>
                 <p className="text-sm text-gray-700 mb-2">
-                  <code className="bg-white border border-black px-1 font-mono">PREFIX + LITERA + CYFRA_KONTROLNA + 5_CYFR</code>
+                  <code className="bg-white border border-black px-1 font-mono">3_LITERY + CYFRA_KONTROLNA + 5_CYFR</code>
                 </p>
                 <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• <strong>PREFIX</strong> - A (60%), C (20%), D (20%) + litera</li>
-                  <li>• <strong>LITERA</strong> - dodatkowa litera serii</li>
+                  <li>• <strong>3_LITERY</strong> - trzy losowe litery (pełny alfabet z O i Q)</li>
                   <li>• <strong>CYFRA_KONTROLNA</strong> - obliczana cyfra kontrolna</li>
-                  <li>• <strong>5_CYFR</strong> - unikalny numer identyfikacyjny</li>
+                  <li>• <strong>5_CYFR</strong> - pięciocyfrowy numer identyfikacyjny</li>
                 </ul>
               </div>
 
@@ -1562,42 +1569,33 @@ Finalny numer: MAAAB12341`}</pre>
                 <h3 className="text-lg font-bold mb-3 text-black">🔢 Kroki generowania:</h3>
                 <div className="space-y-4">
                   <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">1. Generowanie prefiksu</h4>
+                    <h4 className="font-bold text-black mb-2">1. Generowanie liter</h4>
                     <p className="text-sm text-gray-700">
-                      <strong>A + litera</strong> (60% szans) - np. AB, AC, AD<br/>
-                      <strong>C + litera A-I</strong> (20% szans) - np. CA, CB, CI<br/>
-                      <strong>D + litera A-H</strong> (20% szans) - np. DA, DB, DH
+                      3 losowe litery z pełnego alfabetu: <code className="bg-gray-100 border border-black px-1 font-mono">ABCDEFGHIJKLMNOPQRSTUVWXYZ</code>
                     </p>
                   </div>
                   
                   <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">2. Generowanie litery serii</h4>
-                    <p className="text-sm text-gray-700">
-                      Dodatkowa litera z alfabetu bez O i Q: <code className="bg-gray-100 border border-black px-1 font-mono">ABCDEFGHIJKLMNPRSTUVWXYZ</code>
-                    </p>
-                  </div>
-                  
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">3. Generowanie numeru</h4>
+                    <h4 className="font-bold text-black mb-2">2. Generowanie numeru</h4>
                     <p className="text-sm text-gray-700">
                       5 losowych cyfr (10000-99999)
                     </p>
                   </div>
                   
                   <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">4. Obliczanie cyfry kontrolnej</h4>
+                    <h4 className="font-bold text-black mb-2">3. Obliczanie cyfry kontrolnej</h4>
                     <p className="text-sm text-gray-700">
-                      Wagi: <code className="bg-gray-100 border border-black px-1 font-mono">[7, 3, 1, 7, 3, 1, 7]</code>
+                      Wagi: <code className="bg-gray-100 border border-black px-1 font-mono">[7, 3, 1, 7, 3, 1, 7, 3]</code>
                     </p>
                     <p className="text-sm text-gray-700">
-                      Suma z pierwszych 7 znaków modulo 10
+                      Suma z 8 znaków (3 litery + 5 cyfr) modulo 10
                     </p>
                   </div>
                   
                   <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">5. Wstawienie cyfry kontrolnej</h4>
+                    <h4 className="font-bold text-black mb-2">4. Wstawienie cyfry kontrolnej</h4>
                     <p className="text-sm text-gray-700">
-                      Cyfra kontrolna wstawiana na pozycję 3 (po prefiks + litera)
+                      Cyfra kontrolna wstawiana na pozycję 3 (po 3 literach)
                     </p>
                   </div>
                 </div>
@@ -1605,21 +1603,22 @@ Finalny numer: MAAAB12341`}</pre>
 
               {/* Example */}
               <div>
-                <h3 className="text-lg font-bold mb-3 text-black">📝 Przykład: AB12345</h3>
+                <h3 className="text-lg font-bold mb-3 text-black">📝 Przykład: ABC12345</h3>
                 <div className="bg-black text-white p-4 border-2 border-black text-sm font-mono overflow-x-auto">
-                  <pre>{`AB12345
+                  <pre>{`ABC12345
 
 A(10) × 7 = 70
 B(11) × 3 = 33
-1(1) × 1 = 1
-2(2) × 7 = 14
-3(3) × 3 = 9
-4(4) × 1 = 4
-5(5) × 7 = 35
+C(12) × 1 = 12
+1(1) × 7 = 7
+2(2) × 3 = 6
+3(3) × 1 = 3
+4(4) × 7 = 28
+5(5) × 3 = 15
 
-Suma: 166
-Cyfra kontrolna: 166 % 10 = 6
-Finalny numer: AB123456`}</pre>
+Suma: 174
+Cyfra kontrolna: 174 % 10 = 4
+Finalny numer: ABC412345`}</pre>
                 </div>
               </div>
 
@@ -1635,27 +1634,140 @@ Finalny numer: AB123456`}</pre>
                   <div className="bg-white p-2 border-2 border-black">
                     <strong>Litery A-M:</strong><br/>
                     A=10, B=11, C=12, D=13<br/>
-                    E=15, F=16, G=17, H=18<br/>
-                    I=19, J=20, K=21, L=22<br/>
-                    M=23
+                    E=14, F=15, G=16, H=17<br/>
+                    I=18, J=19, K=20, L=21<br/>
+                    M=22
                   </div>
                   <div className="bg-white p-2 border-2 border-black">
                     <strong>Litery N-Z:</strong><br/>
-                    N=24, P=26, R=27, S=28<br/>
-                    T=29, U=30, V=31, W=32<br/>
-                    X=33, Y=34, Z=35
+                    N=23, O=24, P=25, Q=26<br/>
+                    R=27, S=28, T=29, U=30<br/>
+                    V=31, W=32, X=33, Y=34, Z=35
                   </div>
                 </div>
               </div>
 
               {/* Official Source */}
               <div className="bg-green-50 p-4 border-2 border-green-300">
-                <h3 className="text-lg font-bold mb-2 text-black">ℹ️ Źródło oficjalne:</h3>
+                <h3 className="text-lg font-bold mb-2 text-black">ℹ️ Źródło walidatora:</h3>
                 <p className="text-sm text-gray-700">
-                  Algorytm zgodny z oficjalną specyfikacją Ministerstwa Spraw Wewnętrznych i Administracji.
-                  Numer dowodu osobistego składa się z serii (litery) i numeru (cyfry) zgodnie z 
-                  <a href="https://www.gov.pl/web/gov/dowod-osobisty-informacje" target="_blank" rel="noopener noreferrer" className="text-green-600 underline"> oficjalnymi wytycznymi gov.pl</a>.
+                  Algorytm zgodny z walidatorem <a href="https://testerzy.pl/baza-wiedzy/narzedzia-online/walidatory" target="_blank" rel="noopener noreferrer" className="text-green-600 underline">testerzy.pl</a>.
+                  Format: 3 litery + cyfra kontrolna + 5 cyfr. Wartości liter: A=10, B=11, ..., Z=35.
                 </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* IBAN Algorithm Modal */}
+      {showIBANModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white border-2 border-black max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b-2 border-black">
+              <h2 className="text-2xl font-black text-black">🏦 Informacja o algorytmie IBAN</h2>
+              <button
+                onClick={() => setShowIBANModal(false)}
+                className="p-2 hover:bg-gray-100 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Warning */}
+              <div className="bg-yellow-50 p-4 border-2 border-yellow-300">
+                <h3 className="text-lg font-bold mb-2 text-black">⚠️ Ważna informacja:</h3>
+                <p className="text-sm text-gray-700 mb-2">
+                  <strong>Algorytm generowania IBAN w tej aplikacji NIE jest oficjalnym algorytmem bankowym.</strong>
+                </p>
+                <p className="text-sm text-gray-700">
+                  Generowane numery IBAN służą wyłącznie celom testowym i nie odpowiadają rzeczywistym numerom kont bankowych.
+                </p>
+              </div>
+
+              {/* Structure */}
+              <div className="bg-gray-50 p-4 border-2 border-black">
+                <h3 className="text-lg font-bold mb-2 text-black">📋 Struktura generowanego IBAN:</h3>
+                <p className="text-sm text-gray-700 mb-2">
+                  <code className="bg-white border border-black px-1 font-mono">PL + SUMA_KONTROLNA + KOD_JEDNOSTKI + LOSOWA_CZĘŚĆ</code>
+                </p>
+                <ul className="text-sm text-gray-700 space-y-1">
+                  <li>• <strong>PL</strong> - kod kraju (Polska)</li>
+                  <li>• <strong>SUMA_KONTROLNA</strong> - 2 cyfry obliczone algorytmem mod 97</li>
+                  <li>• <strong>KOD_JEDNOSTKI</strong> - 8 cyfr z listy kodów bankowych</li>
+                  <li>• <strong>LOSOWA_CZĘŚĆ</strong> - 16 cyfr generowanych losowo</li>
+                </ul>
+              </div>
+
+              {/* Algorithm Steps */}
+              <div>
+                <h3 className="text-lg font-bold mb-3 text-black">🔢 Kroki generowania:</h3>
+                <div className="space-y-4">
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">1. Wybór kodu jednostki</h4>
+                    <p className="text-sm text-gray-700">
+                      Losowy wybór z listy oficjalnych kodów jednostek bankowych (np. 10100000, 10200003, etc.)
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">2. Generowanie losowej części</h4>
+                    <p className="text-sm text-gray-700">
+                      16 cyfr generowanych losowo (0000000000000000 - 9999999999999999)
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">3. Obliczanie sumy kontrolnej</h4>
+                    <p className="text-sm text-gray-700">
+                      Algorytm mod 97 z kodem Polski (252100)
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      <code className="bg-gray-100 border border-black px-1 font-mono">(kod_jednostki + losowa_część + "252100") % 97</code>
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white p-3 border-2 border-black">
+                    <h4 className="font-bold text-black mb-2">4. Formatowanie wyniku</h4>
+                    <p className="text-sm text-gray-700">
+                      PL + suma_kontrolna + kod_jednostki + losowa_część
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Example */}
+              <div>
+                <h3 className="text-lg font-bold mb-3 text-black">📝 Przykład:</h3>
+                <div className="bg-black text-white p-4 border-2 border-black text-sm font-mono overflow-x-auto">
+                  <pre>{`PL91102010268362583706537308
+
+Kod jednostki: 10201026
+Losowa część: 8362583706537308
+Kod Polski: 252100
+
+Obliczenia:
+10201026836258706537308252100 % 97 = 7
+Suma kontrolna: 98 - 7 = 91
+
+Wynik: PL + 91 + 10201026 + 8362583706537308
+Finalny IBAN: PL91102010268362583706537308`}</pre>
+                </div>
+              </div>
+
+              {/* Disclaimer */}
+              <div className="bg-red-50 p-4 border-2 border-red-300">
+                <h3 className="text-lg font-bold mb-2 text-black">🚫 Zastrzeżenia:</h3>
+                <ul className="text-sm text-gray-700 space-y-1">
+                  <li>• Generowane numery IBAN są <strong>fikcyjne</strong></li>
+                  <li>• Nie odpowiadają rzeczywistym kontom bankowym</li>
+                  <li>• Służą wyłącznie celom testowym i edukacyjnym</li>
+                  <li>• Nie należy ich używać w rzeczywistych transakcjach</li>
+                  <li>• Algorytm może nie być zgodny z oficjalnymi standardami bankowymi</li>
+                </ul>
               </div>
             </div>
           </div>
