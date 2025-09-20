@@ -14,8 +14,8 @@
 - **mDowód** - format MAXXYYYY dla systemu mObywatel
 - **Numer paszportu** - z walidacją cyfry kontrolnej
 - **Księga wieczysta** - z oficjalnymi kodami sądów
-- **NRB** - polski numer rachunku bankowego
-- **IBAN** - polski numer IBAN z walidacją
+- **NRB** - polski numer rachunku bankowego (26 cyfr, prawdziwe kody banków)
+- **IBAN** - międzynarodowy numer IBAN z wyborem kraju (PL/DE/FR/GB)
 - **SWIFT** - kod SWIFT banku
 - **GUID/UUID v4** - unikalne identyfikatory
 - **Polskie imiona i nazwiska** - realistyczne dane
@@ -24,6 +24,7 @@
 - **Unikalne ID pól** - każdy element ma identyfikator (np. `input-pesel`, `input-regon`)
 - **Automatyczne kopiowanie** - kliknij na pole aby skopiować do schowka
 - **Przyciski odświeżania** - dla każdego pola osobno
+- **Dropdown wyboru kraju** - dla IBAN (PL/DE/FR/GB)
 - **Instrukcje dla testerów** - Selenium, Playwright, Cypress
 - **Responsywny design** - działa na wszystkich urządzeniach
 

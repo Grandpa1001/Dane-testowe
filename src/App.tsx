@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, Copy, Github, X, Settings, Info } from 'lucide-react';
+import { RefreshCw, Copy, Github, X, Info } from 'lucide-react';
 
 interface TestData {
   firstName: string;
@@ -13,7 +13,6 @@ interface TestData {
   passportNumber: string;
   landRegisterNumber: string;
   swift: string;
-  iban: string;
   guid: string;
 }
 
@@ -30,7 +29,6 @@ function App() {
     passportNumber: '',
     landRegisterNumber: '',
     swift: '',
-    iban: '',
     guid: ''
   });
   
@@ -40,7 +38,6 @@ function App() {
   const [showLandRegisterModal, setShowLandRegisterModal] = useState<boolean>(false);
   const [showMDowodModal, setShowMDowodModal] = useState<boolean>(false);
   const [showIDNumberModal, setShowIDNumberModal] = useState<boolean>(false);
-  const [showIBANModal, setShowIBANModal] = useState<boolean>(false);
   const [gender, setGender] = useState<'K' | 'M' | 'K/M'>('K/M');
 
   // Obsługa zmiany płci - przegenerowuje imię i PESEL
@@ -88,10 +85,6 @@ function App() {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
-  // Generowanie PESEL
-  const generatePESEL = (): string => {
-    return generatePESELWithGender(gender);
-  };
 
   // Generowanie PESEL z uwzględnieniem płci - zgodnie z oficjalnym algorytmem
   const generatePESELWithGender = (selectedGender: 'K' | 'M' | 'K/M'): string => {
@@ -190,36 +183,6 @@ function App() {
     return result;
   };
 
-  // Generowanie 14-cyfrowego REGON
-  const generateREGON14 = (): string => {
-    const weights = [2, 4, 8, 5, 0, 9, 7, 3, 6, 1, 2, 4, 8];
-    
-    // Zacznij od 9-cyfrowego REGON
-    const regon9 = generateREGON9();
-    
-    // Skopiuj cyfry z 9-cyfrowego REGON
-    const cyfry = [];
-    for (let i = 0; i < regon9.length; i++) {
-      cyfry[i] = parseInt(regon9.charAt(i));
-    }
-    
-    // Dodaj pozostałe 4 cyfry (pozycje 9-12)
-    for (let i = regon9.length; i < weights.length; i++) {
-      cyfry[i] = randomInt(0, 9);
-    }
-
-    // Oblicz cyfrę kontrolną
-    let cyfra_kontrolna = 0;
-    for (let i = 0; i < cyfry.length; i++) {
-      cyfra_kontrolna += weights[i] * cyfry[i];
-    }
-    cyfra_kontrolna = (cyfra_kontrolna % 11) % 10;
-
-    // Połącz wszystkie cyfry
-    let result = cyfry.join('');
-    result += cyfra_kontrolna;
-    return result;
-  };
 
   // Generowanie NIP - zgodnie z oficjalnym algorytmem
   const generateNIP = (): string => {
@@ -255,16 +218,42 @@ function App() {
     return result;
   };
 
-  // Generowanie NRB
+  const mod97 = (numStr: string): number => {
+    let remainder = 0;
+    for (let i = 0; i < numStr.length; i += 7) {
+      const part = remainder.toString() + numStr.substring(i, i + 7);
+      remainder = parseInt(part, 10) % 97;
+    }
+    return remainder;
+  };
+
+  const lettersToDigits = (str: string): string => {
+    return str.replace(/[A-Z]/g, ch => (ch.charCodeAt(0) - 55).toString());
+  };
+
+  const generateNRBHelper = (bankId8: string, accountNumber: string): string => {
+    const bank = String(bankId8).padStart(8, '0');
+    const acc = String(accountNumber).padStart(16, '0');
+    const bban = bank + acc;
+
+    const rearranged = bban + "PL00";
+    const numeric = lettersToDigits(rearranged);
+
+    const remainder = mod97(numeric);
+    const check = (98 - remainder).toString().padStart(2, '0');
+
+    const result = check + bban;
+    return result;
+  };
+
   const generateNRB = (): string => {
-    const bankCode = randomInt(1000, 9999).toString();
-    const accountNumber = randomInt(10000000, 99999999).toString() + 
-                         randomInt(10000000, 99999999).toString();
+    const unitCodes = ["10100000", "10100039", "10100055", "10100068", "10101010", "10101023", "10101049", "10101078", "10101140", "10101212", "10101238", "10101270", "10101339", "10101371", "10101397", "10101401", "10101469", "10101528", "10101599", "10101674", "10101704", "10200003", "10200016", "10200029", "10200032", "10200045", "10200058", "10200061", "10200074", "10201013", "10201026", "10201042", "10201055", "10201068", "10201097", "10201127", "10201156", "10201169", "10201185", "10201260", "10201332", "10201390", "10201433", "10201462", "10201475", "10201491", "10201505", "10201563", "10201592", "10201664", "10201752", "10201778", "10201811", "10201853", "10201866", "10201879", "10201909", "10201912", "10201954", "10201967", "10202036", "10202124", "10202137", "10202212", "10202241", "10202267", "10202313", "10202368", "10202384", "10202401", "10202430", "10202472", "10202498", "10202528", "10202629", "10202645", "10202674", "10202733", "10202746", "10202762", "10202791", "10202821", "10202847", "10202892", "10202906", "10202964", "10202980", "10203017", "10203088", "10203121", "10203147", "10203150", "10203176", "10203206", "10203219", "10203235", "10203352", "10203378", "10203408", "10203437", "10203440", "10203453", "10203466", "10203541", "10203570", "10203583", "10203613", "10203639", "10203668", "10203714", "10203802", "10203844", "10203903", "10203916", "10203958", "10203974", "10204027", "10204115", "10204128", "10204144", "10204160", "10204274", "10204287", "10204317", "10204391", "10204405", "10204476", "10204564", "10204580", "10204649", "10204665", "10204681", "10204708", "10204724", "10204753", "10204795", "10204812", "10204867", "10204870", "10204900", "10204913", "10204926", "10204939", "10204955", "10204984", "10205011", "10205024", "10205040", "10205095", "10205112", "10205138", "10205170", "10205200", "10205226", "10205242", "10205297", "10205356", "10205385", "10205402", "10205460", "10205558", "10205561", "10205574", "10205587", "10205590", "10205604", "10205617", "10205620", "10205633", "10205659"];
     
-    // Uproszczone generowanie - w rzeczywistości wymaga bardziej złożonych obliczeń
-    const checkDigits = randomInt(10, 99).toString();
+    const bankId8 = unitCodes[randomInt(0, unitCodes.length - 1)];
+    const accountNumber = randomInt(0, 9999999999999999).toString().padStart(16, '0');
     
-    return checkDigits + bankCode + '0000' + accountNumber;
+    const result = generateNRBHelper(bankId8, accountNumber);
+    return result;
   };
 
   // Generowanie numeru dowodu osobistego - zgodnie z walidatorem testerzy.pl
@@ -499,28 +488,6 @@ function App() {
     return swift;
   };
 
-  // Generowanie IBAN - zgodnie z oficjalnym algorytmem
-  const generateIBAN = (): string => {
-    const unitCodes = ["10100000", "10100039", "10100055", "10100068", "10101010", "10101023", "10101049", "10101078", "10101140", "10101212", "10101238", "10101270", "10101339", "10101371", "10101397", "10101401", "10101469", "10101528", "10101599", "10101674", "10101704", "10200003", "10200016", "10200029", "10200032", "10200045", "10200058", "10200061", "10200074", "10201013", "10201026", "10201042", "10201055", "10201068", "10201097", "10201127", "10201156", "10201169", "10201185", "10201260", "10201332", "10201390", "10201433", "10201462", "10201475", "10201491", "10201505", "10201563", "10201592", "10201664", "10201752", "10201778", "10201811", "10201853", "10201866", "10201879", "10201909", "10201912", "10201954", "10201967", "10202036", "10202124", "10202137", "10202212", "10202241", "10202267", "10202313", "10202368", "10202384", "10202401", "10202430", "10202472", "10202498", "10202528", "10202629", "10202645", "10202674", "10202733", "10202746", "10202762", "10202791", "10202821", "10202847", "10202892", "10202906", "10202964", "10202980", "10203017", "10203088", "10203121", "10203147", "10203150", "10203176", "10203206", "10203219", "10203235", "10203352", "10203378", "10203408", "10203437", "10203440", "10203453", "10203466", "10203541", "10203570", "10203583", "10203613", "10203639", "10203668", "10203714", "10203802", "10203844", "10203903", "10203916", "10203958", "10203974", "10204027", "10204115", "10204128", "10204144", "10204160", "10204274", "10204287", "10204317", "10204391", "10204405", "10204476", "10204564", "10204580", "10204649", "10204665", "10204681", "10204708", "10204724", "10204753", "10204795", "10204812", "10204867", "10204870", "10204900", "10204913", "10204926", "10204939", "10204955", "10204984", "10205011", "10205024", "10205040", "10205095", "10205112", "10205138", "10205170", "10205200", "10205226", "10205242", "10205297", "10205356", "10205385", "10205402", "10205460", "10205558", "10205561", "10205574", "10205587", "10205590", "10205604", "10205617", "10205620", "10205633", "10205659"];
-    
-    // Wybierz losowy kod jednostki
-    const unitCode = unitCodes[randomInt(0, unitCodes.length - 1)];
-    
-    // Generuj losową część (16 cyfr)
-    const randomPart = randomInt(0, 9999999999999999).toString().padStart(16, '0');
-    
-    // Połącz kod jednostki z losową częścią
-    const base = unitCode + randomPart;
-    
-    // Oblicz sumę kontrolną IBAN
-    const baseNumber = BigInt(base + "252100"); // 252100 to kod dla Polski
-    const remainder = baseNumber % BigInt(97);
-    const controlNumber = 98 - Number(remainder);
-    const controlSum = controlNumber.toString().padStart(2, '0');
-    
-    // Zwróć IBAN w formacie PL + suma kontrolna + kod jednostki + losowa część
-    return 'PL' + controlSum + base;
-  };
 
   // Generowanie GUID/UUID v4
   const generateGUID = (): string => {
@@ -562,7 +529,6 @@ function App() {
       passportNumber: generatePassportNumber(),
       landRegisterNumber: generateLandRegisterNumber(),
       swift: generateSWIFT(),
-      iban: generateIBAN(),
       guid: generateGUID()
     };
   };
@@ -619,9 +585,6 @@ function App() {
       case 'swift':
         newData.swift = generateSWIFT();
         break;
-      case 'iban':
-        newData.iban = generateIBAN();
-        break;
       case 'guid':
         newData.guid = generateGUID();
         break;
@@ -658,7 +621,6 @@ function App() {
     { key: 'passportNumber' as keyof TestData, label: 'Numer paszportu' },
     { key: 'landRegisterNumber' as keyof TestData, label: 'Księga wieczysta' },
     { key: 'swift' as keyof TestData, label: 'SWIFT' },
-    { key: 'iban' as keyof TestData, label: 'IBAN' },
     { key: 'guid' as keyof TestData, label: 'GUID' }
   ];
 
@@ -673,7 +635,7 @@ function App() {
                 Generator Danych Testowych
               </h1>
               <p className="text-gray-600 text-sm">
-                PESEL, REGON, NIP, dowód osobisty (ABC012345), mDowód, paszport, księga wieczysta, NRB, IBAN, SWIFT, GUID
+                PESEL, REGON, NIP, dowód osobisty (ABC012345), mDowód, paszport, księga wieczysta, NRB, SWIFT, GUID
               </p>
               <p className="text-gray-500 text-xs mt-1">
                 Kliknij pole aby skopiować • Użyj ↻ do odświeżania
@@ -948,16 +910,6 @@ function App() {
                   </button>
                 )}
 
-                {/* Tooltip button for IBAN */}
-                {field.key === 'iban' && (
-                  <button
-                    onClick={() => setShowIBANModal(true)}
-                    className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
-                    title="Informacja o algorytmie IBAN"
-                  >
-                    <Info size={12} />
-                  </button>
-                )}
                 
                 <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
                   {field.label}
@@ -1088,7 +1040,6 @@ function App() {
                     <strong className="text-black">SWIFT:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-swift</code>
                   </div>
                   <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">IBAN:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-iban</code>
                   </div>
                   <div className="bg-white p-2 border-2 border-black">
                     <strong className="text-black">GUID:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-guid</code>
@@ -1660,119 +1611,6 @@ Finalny numer: ABC412345`}</pre>
         </div>
       )}
 
-      {/* IBAN Algorithm Modal */}
-      {showIBANModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white border-2 border-black max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b-2 border-black">
-              <h2 className="text-2xl font-black text-black">🏦 Informacja o algorytmie IBAN</h2>
-              <button
-                onClick={() => setShowIBANModal(false)}
-                className="p-2 hover:bg-gray-100 transition-colors"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            
-            {/* Modal Content */}
-            <div className="p-6 space-y-6">
-              {/* Warning */}
-              <div className="bg-yellow-50 p-4 border-2 border-yellow-300">
-                <h3 className="text-lg font-bold mb-2 text-black">⚠️ Ważna informacja:</h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  <strong>Algorytm generowania IBAN w tej aplikacji NIE jest oficjalnym algorytmem bankowym.</strong>
-                </p>
-                <p className="text-sm text-gray-700">
-                  Generowane numery IBAN służą wyłącznie celom testowym i nie odpowiadają rzeczywistym numerom kont bankowych.
-                </p>
-              </div>
-
-              {/* Structure */}
-              <div className="bg-gray-50 p-4 border-2 border-black">
-                <h3 className="text-lg font-bold mb-2 text-black">📋 Struktura generowanego IBAN:</h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  <code className="bg-white border border-black px-1 font-mono">PL + SUMA_KONTROLNA + KOD_JEDNOSTKI + LOSOWA_CZĘŚĆ</code>
-                </p>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• <strong>PL</strong> - kod kraju (Polska)</li>
-                  <li>• <strong>SUMA_KONTROLNA</strong> - 2 cyfry obliczone algorytmem mod 97</li>
-                  <li>• <strong>KOD_JEDNOSTKI</strong> - 8 cyfr z listy kodów bankowych</li>
-                  <li>• <strong>LOSOWA_CZĘŚĆ</strong> - 16 cyfr generowanych losowo</li>
-                </ul>
-              </div>
-
-              {/* Algorithm Steps */}
-              <div>
-                <h3 className="text-lg font-bold mb-3 text-black">🔢 Kroki generowania:</h3>
-                <div className="space-y-4">
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">1. Wybór kodu jednostki</h4>
-                    <p className="text-sm text-gray-700">
-                      Losowy wybór z listy oficjalnych kodów jednostek bankowych (np. 10100000, 10200003, etc.)
-                    </p>
-                  </div>
-                  
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">2. Generowanie losowej części</h4>
-                    <p className="text-sm text-gray-700">
-                      16 cyfr generowanych losowo (0000000000000000 - 9999999999999999)
-                    </p>
-                  </div>
-                  
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">3. Obliczanie sumy kontrolnej</h4>
-                    <p className="text-sm text-gray-700">
-                      Algorytm mod 97 z kodem Polski (252100)
-                    </p>
-                    <p className="text-sm text-gray-700">
-                      <code className="bg-gray-100 border border-black px-1 font-mono">(kod_jednostki + losowa_część + "252100") % 97</code>
-                    </p>
-                  </div>
-                  
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">4. Formatowanie wyniku</h4>
-                    <p className="text-sm text-gray-700">
-                      PL + suma_kontrolna + kod_jednostki + losowa_część
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Example */}
-              <div>
-                <h3 className="text-lg font-bold mb-3 text-black">📝 Przykład:</h3>
-                <div className="bg-black text-white p-4 border-2 border-black text-sm font-mono overflow-x-auto">
-                  <pre>{`PL91102010268362583706537308
-
-Kod jednostki: 10201026
-Losowa część: 8362583706537308
-Kod Polski: 252100
-
-Obliczenia:
-10201026836258706537308252100 % 97 = 7
-Suma kontrolna: 98 - 7 = 91
-
-Wynik: PL + 91 + 10201026 + 8362583706537308
-Finalny IBAN: PL91102010268362583706537308`}</pre>
-                </div>
-              </div>
-
-              {/* Disclaimer */}
-              <div className="bg-red-50 p-4 border-2 border-red-300">
-                <h3 className="text-lg font-bold mb-2 text-black">🚫 Zastrzeżenia:</h3>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• Generowane numery IBAN są <strong>fikcyjne</strong></li>
-                  <li>• Nie odpowiadają rzeczywistym kontom bankowym</li>
-                  <li>• Służą wyłącznie celom testowym i edukacyjnym</li>
-                  <li>• Nie należy ich używać w rzeczywistych transakcjach</li>
-                  <li>• Algorytm może nie być zgodny z oficjalnymi standardami bankowymi</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Footer */}
       <footer className="bg-white border-t-2 border-black mt-8">
