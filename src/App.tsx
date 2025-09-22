@@ -14,6 +14,7 @@ interface TestData {
   landRegisterNumber: string;
   swift: string;
   guid: string;
+  birthDate: string; // Format: YYYY-MM-DD
 }
 
 function App() {
@@ -29,7 +30,8 @@ function App() {
     passportNumber: '',
     landRegisterNumber: '',
     swift: '',
-    guid: ''
+    guid: '',
+    birthDate: ''
   });
   
   const [copiedField, setCopiedField] = useState<string>('');
@@ -39,6 +41,7 @@ function App() {
   const [showMDowodModal, setShowMDowodModal] = useState<boolean>(false);
   const [showIDNumberModal, setShowIDNumberModal] = useState<boolean>(false);
   const [gender, setGender] = useState<'K' | 'M' | 'K/M'>('K/M');
+  const [isBirthDateModified, setIsBirthDateModified] = useState<boolean>(false);
 
   // Obsługa zmiany płci - przegenerowuje imię i PESEL
   const handleGenderChange = (newGender: 'K' | 'M' | 'K/M') => {
@@ -53,10 +56,40 @@ function App() {
       ? femaleNames[randomInt(0, femaleNames.length - 1)]
       : maleNames[randomInt(0, maleNames.length - 1)];
     
-    // Generuj nowy PESEL
-    newData.pesel = generatePESELWithGender(newGender);
+    // Generuj nowy PESEL (uwzględniając modyfikowaną datę jeśli jest zaznaczona)
+    if (isBirthDateModified && data.birthDate) {
+      newData.pesel = generatePESELWithGender(newGender, data.birthDate);
+    } else {
+      newData.pesel = generatePESELWithGender(newGender);
+      newData.birthDate = extractDateFromPESEL(newData.pesel);
+    }
     
     setData(newData);
+  };
+
+  // Obsługa zmiany daty urodzenia
+  const handleBirthDateChange = (newDate: string) => {
+    const newData = { ...data };
+    newData.birthDate = newDate;
+    
+    // Jeśli data jest modyfikowana, przegeneruj PESEL z nową datą
+    if (isBirthDateModified) {
+      newData.pesel = generatePESELWithGender(gender, newDate);
+    }
+    
+    setData(newData);
+  };
+
+  // Obsługa zmiany checkboxa "Modyfikowana"
+  const handleBirthDateModifiedChange = (isModified: boolean) => {
+    setIsBirthDateModified(isModified);
+    
+    if (!isModified) {
+      // Jeśli odznaczono "Modyfikowana", przegeneruj datę z PESEL
+      const newData = { ...data };
+      newData.birthDate = extractDateFromPESEL(data.pesel);
+      setData(newData);
+    }
   };
 
   // Polskie imiona i nazwiska
@@ -85,16 +118,74 @@ function App() {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
+  // Konwersja daty z PESEL na format YYYY-MM-DD
+  const extractDateFromPESEL = (pesel: string): string => {
+    if (pesel.length !== 11) return '';
+    
+    const year = parseInt(pesel.substring(0, 2));
+    let month = parseInt(pesel.substring(2, 4));
+    const day = parseInt(pesel.substring(4, 6));
+    
+    // Określ pełny rok na podstawie miesiąca
+    let fullYear: number;
+    if (month >= 1 && month <= 12) {
+      fullYear = 1900 + year;
+    } else if (month >= 21 && month <= 32) {
+      fullYear = 2000 + year;
+      month -= 20;
+    } else if (month >= 41 && month <= 52) {
+      fullYear = 2100 + year;
+      month -= 40;
+    } else if (month >= 61 && month <= 72) {
+      fullYear = 2200 + year;
+      month -= 60;
+    } else if (month >= 81 && month <= 92) {
+      fullYear = 1800 + year;
+      month -= 80;
+    } else {
+      fullYear = 1900 + year;
+    }
+    
+    // Formatuj datę jako YYYY-MM-DD
+    const formattedMonth = month.toString().padStart(2, '0');
+    const formattedDay = day.toString().padStart(2, '0');
+    
+    return `${fullYear}-${formattedMonth}-${formattedDay}`;
+  };
+
+  // Formatowanie daty do wyświetlania (DD-MM-YYYY)
+  const formatDateForDisplay = (dateString: string): string => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
 
   // Generowanie PESEL z uwzględnieniem płci - zgodnie z oficjalnym algorytmem
-  const generatePESELWithGender = (selectedGender: 'K' | 'M' | 'K/M'): string => {
+  const generatePESELWithGender = (selectedGender: 'K' | 'M' | 'K/M', customBirthDate?: string): string => {
     const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
     
-    // Generuj losową datę urodzenia (1900-2099)
-    const fullYear = randomInt(1900, 2099);
+    let fullYear: number;
+    let m: number;
+    let d: number;
+    
+    if (customBirthDate) {
+      // Użyj podanej daty urodzenia
+      const date = new Date(customBirthDate);
+      fullYear = date.getFullYear();
+      m = date.getMonth() + 1; // getMonth() zwraca 0-11
+      d = date.getDate();
+    } else {
+      // Generuj losową datę urodzenia (1900-2099)
+      fullYear = randomInt(1900, 2099);
+      m = randomInt(1, 12);
+      d = randomInt(1, 28);
+    }
+    
     const y = fullYear % 100;
-    let m = randomInt(1, 12);
-    const d = randomInt(1, 28);
     
     // Dostosuj miesiąc dla różnych stuleci
     if (fullYear >= 1800 && fullYear <= 1899) {
@@ -517,10 +608,14 @@ function App() {
       ? femaleNames[randomInt(0, femaleNames.length - 1)]
       : maleNames[randomInt(0, maleNames.length - 1)];
     
+    // Generuj PESEL z datą urodzenia
+    const pesel = generatePESELWithGender(selectedGender);
+    const birthDate = extractDateFromPESEL(pesel);
+    
     return {
       firstName: firstName,
       lastName: lastNames[randomInt(0, lastNames.length - 1)],
-      pesel: generatePESELWithGender(selectedGender),
+      pesel: pesel,
       regon: generateREGON(),
       nip: generateNIP(),
       nrb: generateNRB(),
@@ -529,7 +624,8 @@ function App() {
       passportNumber: generatePassportNumber(),
       landRegisterNumber: generateLandRegisterNumber(),
       swift: generateSWIFT(),
-      guid: generateGUID()
+      guid: generateGUID(),
+      birthDate: birthDate
     };
   };
 
@@ -559,7 +655,18 @@ function App() {
         newData.lastName = lastNames[randomInt(0, lastNames.length - 1)];
         break;
       case 'pesel':
-        newData.pesel = generatePESELWithGender(gender);
+        if (isBirthDateModified && data.birthDate) {
+          newData.pesel = generatePESELWithGender(gender, data.birthDate);
+        } else {
+          newData.pesel = generatePESELWithGender(gender);
+        }
+        newData.birthDate = extractDateFromPESEL(newData.pesel);
+        break;
+      case 'birthDate':
+        // Odświeżenie daty urodzenia - przegeneruj PESEL z nową datą
+        if (data.birthDate) {
+          newData.pesel = generatePESELWithGender(gender, data.birthDate);
+        }
         break;
       case 'regon':
         newData.regon = generateREGON();
@@ -866,9 +973,118 @@ function App() {
             </div>
           </div>
 
+          {/* Trzeci rząd: Data urodzenia i REGON */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Pole Data urodzenia */}
+            <div
+              id="field-container-birthDate"
+              data-testid="field-container-birthDate"
+              data-field-type="birthDate"
+              data-field-label="Data urodzenia"
+              className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative"
+            >
+              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
+                Data urodzenia
+                <span className="text-gray-500 font-normal normal-case ml-2">
+                  ID: input-birthDate
+                </span>
+              </label>
+              
+              <div className="flex gap-2 items-center">
+                {/* Checkbox Modyfikowana */}
+                <div className="flex items-center gap-2">
+                  <input
+                    id="birthDate-modified-checkbox"
+                    data-testid="birthDate-modified-checkbox"
+                    type="checkbox"
+                    checked={isBirthDateModified}
+                    onChange={(e) => handleBirthDateModifiedChange(e.target.checked)}
+                    className="w-4 h-4 text-black border-2 border-gray-300 rounded focus:ring-black focus:ring-2"
+                  />
+                  <label htmlFor="birthDate-modified-checkbox" className="text-xs font-bold text-gray-700">
+                    Modyfikowana
+                  </label>
+                </div>
+                
+                {/* Pole daty */}
+                <input
+                  id="input-birthDate"
+                  data-testid="input-birthDate"
+                  data-field-type="birthDate"
+                  data-field-label="Data urodzenia"
+                  type="date"
+                  value={data.birthDate}
+                  onChange={(e) => handleBirthDateChange(e.target.value)}
+                  disabled={!isBirthDateModified}
+                  className={`flex-1 px-2 py-1 border text-sm font-mono transition-colors ${
+                    isBirthDateModified 
+                      ? 'border-gray-300 bg-white hover:bg-gray-50 focus:outline-none focus:border-black' 
+                      : 'border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed'
+                  }`}
+                  max={new Date().toISOString().split('T')[0]} // Nie można wybrać daty z przyszłości
+                />
+                
+                {/* Przycisk odświeżania */}
+                <button
+                  id="refresh-birthDate"
+                  data-testid="refresh-birthDate"
+                  data-field-type="birthDate"
+                  data-action="refresh-field"
+                  onClick={() => refreshField('birthDate')}
+                  className="px-2 py-1 bg-black text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                  title="Odśwież"
+                >
+                  <RefreshCw size={14} />
+                </button>
+              </div>
+            </div>
+
+            {/* Pole REGON */}
+            <div
+              id="field-container-regon"
+              data-testid="field-container-regon"
+              data-field-type="regon"
+              data-field-label="REGON"
+              className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative"
+            >
+              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
+                REGON
+                <span className="text-gray-500 font-normal normal-case ml-2">
+                  ID: input-regon
+                </span>
+              </label>
+              
+              <div className="flex gap-2">
+                <input
+                  id="input-regon"
+                  data-testid="input-regon"
+                  data-field-type="regon"
+                  data-field-label="REGON"
+                  type="text"
+                  value={data.regon}
+                  readOnly
+                  onClick={() => copyToClipboard(data.regon, 'regon')}
+                  className="flex-1 px-2 py-1 border border-gray-300 text-sm font-mono bg-gray-50 cursor-pointer hover:bg-gray-100 focus:outline-none focus:border-black transition-colors"
+                  placeholder="Kliknij aby skopiować"
+                />
+                <button
+                  id="refresh-regon"
+                  data-testid="refresh-regon"
+                  data-field-type="regon"
+                  data-action="refresh-field"
+                  onClick={() => refreshField('regon')}
+                  className="px-2 py-1 bg-black text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                  title="Odśwież"
+                >
+                  <RefreshCw size={14} />
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Pozostałe pola w standardowym układzie */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {fields.filter(field => !['firstName', 'lastName', 'pesel'].includes(field.key)).map((field) => (
+            {fields.filter(field => !['firstName', 'lastName', 'pesel', 'regon'].includes(field.key)).map((field) => (
               <div
                 key={field.key}
                 id={`field-container-${field.key}`}
