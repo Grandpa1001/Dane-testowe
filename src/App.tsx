@@ -825,6 +825,19 @@ Jeśli masz pomysł na implementację, opisz go...`;
 
   return (
     <div id="app-container" data-testid="app-container" className="min-h-screen bg-white">
+      {/* Hidden greetings visible only on selection */}
+      <span
+        aria-hidden="true"
+        className="fixed left-2 top-1/2 -translate-y-1/2 transform pointer-events-none select-text text-white selection:text-black selection:bg-yellow-200 font-black text-xl md:text-2xl lg:text-3xl tracking-tight"
+      >
+        Miłego
+      </span>
+      <span
+        aria-hidden="true"
+        className="fixed right-2 top-1/2 -translate-y-1/2 transform pointer-events-none select-text text-white selection:text-black selection:bg-yellow-200 font-black text-xl md:text-2xl lg:text-3xl tracking-tight"
+      >
+        dnia!
+      </span>
       {/* Header */}
       <header className="bg-white border-b-2 border-black">
         <div className="max-w-4xl mx-auto px-4 py-6">
