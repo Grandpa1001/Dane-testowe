@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, Copy, Github, X, Info } from 'lucide-react';
+import { RefreshCw, Copy, Github, X, Info, Bug, Lightbulb } from 'lucide-react';
 
 interface TestData {
   firstName: string;
@@ -44,6 +44,7 @@ function App() {
   const [showIDNumberModal, setShowIDNumberModal] = useState<boolean>(false);
   const [gender, setGender] = useState<'K' | 'M' | 'K/M'>('K/M');
   const [isBirthDateModified, setIsBirthDateModified] = useState<boolean>(false);
+  const [showFloatingButton, setShowFloatingButton] = useState<boolean>(true);
 
   // Obsługa zmiany płci - przegenerowuje imię i PESEL
   const handleGenderChange = (newGender: 'K' | 'M' | 'K/M') => {
@@ -762,6 +763,42 @@ function App() {
     } catch (err) {
       console.error('Nie można skopiować kodu:', err);
     }
+  };
+
+  // Otwieranie GitHub Issues
+  const openGitHubIssue = (type: 'bug' | 'feature') => {
+    const baseUrl = 'https://github.com/Grandpa1001/Dane-testowe/issues/new';
+    const title = type === 'bug' ? '🐛 Zgłoszenie błędu' : '💡 Propozycja nowej funkcji';
+    const body = type === 'bug' 
+      ? `## 🐛 Opis błędu
+Opisz szczegółowo jaki błąd wystąpił...
+
+## 🔍 Kroki do odtworzenia
+1. 
+2. 
+3. 
+
+## 📱 Informacje o przeglądarce
+- Przeglądarka: 
+- Wersja: 
+- System operacyjny: 
+
+## 📸 Zrzuty ekranu
+Jeśli możliwe, dodaj zrzuty ekranu...`
+      : `## 💡 Opis funkcji
+Opisz szczegółowo jaką funkcję chciałbyś dodać...
+
+## 🎯 Cel
+Dlaczego ta funkcja byłaby przydatna?
+
+## 📋 Przykłady użycia
+Jak wyobrażasz sobie działanie tej funkcji?
+
+## 🔧 Sugerowana implementacja
+Jeśli masz pomysł na implementację, opisz go...`;
+
+    const url = `${baseUrl}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+    window.open(url, '_blank');
   };
 
 
@@ -1919,6 +1956,59 @@ Finalny numer: ABC412345`}</pre>
           </p>
         </div>
       </footer>
+
+      {/* Floating Feedback Button */}
+      {showFloatingButton && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className="relative group">
+            {/* Main floating button */}
+            <button
+              onClick={() => setShowFloatingButton(false)}
+              className="w-14 h-14 bg-black text-white rounded-full shadow-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-300 flex items-center justify-center group-hover:scale-110"
+              title="Zgłoś błąd lub zaproponuj funkcję"
+            >
+              <Bug size={20} />
+            </button>
+            
+            {/* Tooltip */}
+            <div className="absolute bottom-1/2 right-full mr-2 px-3 py-2 bg-black text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap transform -translate-y-1/2">
+              Zgłoś błąd lub zaproponuj funkcję
+            </div>
+            
+            {/* Submenu buttons */}
+            <div className="absolute bottom-16 right-0 space-y-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+              {/* Bug report button */}
+              <button
+                onClick={() => openGitHubIssue('bug')}
+                className="w-12 h-12 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-300 flex items-center justify-center hover:scale-110"
+                title="Zgłoś błąd"
+              >
+                <Bug size={16} />
+              </button>
+              
+              {/* Feature request button */}
+              <button
+                onClick={() => openGitHubIssue('feature')}
+                className="w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 flex items-center justify-center hover:scale-110"
+                title="Zaproponuj funkcję"
+              >
+                <Lightbulb size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Show floating button again button */}
+      {!showFloatingButton && (
+        <button
+          onClick={() => setShowFloatingButton(true)}
+          className="fixed bottom-6 right-6 z-50 w-12 h-12 bg-gray-600 text-white rounded-full shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-300 flex items-center justify-center"
+          title="Pokaż przycisk zgłaszania"
+        >
+          <Bug size={16} />
+        </button>
+      )}
     </div>
   );
 }

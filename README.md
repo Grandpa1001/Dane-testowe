@@ -223,6 +223,36 @@ Planowane funkcje do dodania:
 - **VIN** - generowanie numerów identyfikacyjnych pojazdów
 - **Numer rejestracyjny** - generowanie numerów rejestracyjnych pojazdów
 
+## 🚀 Chcesz dodać nową funkcjonalność?
+
+Masz pomysł na nowe pole lub funkcję? **Zgłoś to jako Issue!**
+
+[![GitHub Issues](https://img.shields.io/github/issues/Grandpa1001/Dane-testowe?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Grandpa1001/Dane-testowe/issues)
+
+### 💡 Co możesz zgłosić:
+
+- **Nowe pola** - PESEL dla firm, numer KRS, adres e-dokumentów
+- **Nowe funkcje** - eksport do CSV, walidacja danych, historia generowania
+- **Ulepszenia UI** - nowe style, animacje, responsywność
+- **Błędy** - nieprawidłowe algorytmy, problemy z interfejsem
+- **Dokumentacja** - brakujące przykłady, niejasne opisy
+
+### 🎯 Jak zgłosić:
+
+1. **Kliknij** [![New Issue](https://img.shields.io/badge/New%20Issue-FF6B6B?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Grandpa1001/Dane-testowe/issues/new)
+2. **Wybierz** odpowiedni szablon (Feature Request / Bug Report)
+3. **Opisz** szczegółowo swoją propozycję
+4. **Czekaj** na odpowiedź i implementację!
+
+### 🏆 Najlepsze propozycje:
+
+- **Pola biznesowe** - KRS, CEIDG, VAT
+- **Dokumenty** - prawo jazdy, legitymacja studencka
+- **Adresy** - e-dokumenty, e-faktury
+- **Numery** - telefon, konto bankowe, karta płatnicza
+
+**Każda propozycja jest mile widziana!** 🎉
+
 ## ⚠️ Uwaga
 
 Wszystkie generowane dane są **losowe i służą wyłącznie celom testowym**. Nie odpowiadają one rzeczywistym danym osób fizycznych lub prawnych.
@@ -240,6 +270,8 @@ Ten projekt jest dostępny na licencji MIT. Zobacz plik `LICENSE` dla szczegół
 - **🌐 Live Demo:** https://dane-testowe.netlify.app/
 - **📖 Dokumentacja AI:** https://dane-testowe.netlify.app/llms.txt
 - **🤖 GitHub:** https://github.com/Grandpa1001/Dane-testowe
+- **🐛 Zgłoś błąd:** https://github.com/Grandpa1001/Dane-testowe/issues/new
+- **💡 Nowa funkcja:** https://github.com/Grandpa1001/Dane-testowe/issues/new
 - **👨‍💻 Autor:** https://github.com/Grandpa1001
 - **🌍 Website:** https://mgrgracz.netlify.app/
 
@@ -251,7 +283,13 @@ Ten projekt jest dostępny na licencji MIT. Zobacz plik `LICENSE` dla szczegół
 
 ---
 
-⭐ Jeśli projekt Ci się podoba, zostaw gwiazdkę!
+⭐ **Jeśli projekt Ci się podoba, zostaw gwiazdkę!**
+
+🐛 **Znalazłeś błąd?** [Zgłoś go tutaj](https://github.com/Grandpa1001/Dane-testowe/issues/new)
+
+💡 **Masz pomysł na nową funkcję?** [Opisz go tutaj](https://github.com/Grandpa1001/Dane-testowe/issues/new)
+
+🤝 **Chcesz pomóc w rozwoju?** Forkuj repo i stwórz Pull Request!
 
 ## 📊 Statystyki
 
