@@ -19,14 +19,16 @@
 - **IBAN** - międzynarodowy numer IBAN z wyborem kraju (PL/DE/FR/GB)
 - **SWIFT** - kod SWIFT banku
 - **GUID/UUID v4** - unikalne identyfikatory
+- **Adres do E-doręczeń** - format AE:PL-XXXXX-XXXXX-XXXXX-XX z oficjalnym algorytmem
 - **Polskie imiona i nazwiska** - realistyczne dane
 
 ### 🔧 Funkcje automatyzacji:
-- **Unikalne ID pól** - każdy element ma identyfikator (np. `input-pesel`, `input-regon`, `input-birthDate`)
+- **Unikalne ID pól** - każdy element ma identyfikator (np. `input-pesel`, `input-regon`, `input-birthDate`, `input-edoreczenie`)
 - **Automatyczne kopiowanie** - kliknij na pole aby skopiować do schowka
 - **Przyciski odświeżania** - dla każdego pola osobno
 - **Pole daty urodzenia** - z kalendarzem HTML5 i checkboxem "Modyfikowana"
 - **Synchronizacja PESEL ↔ Data** - automatyczne pobieranie daty z PESEL
+- **Adres e-doręczeń** - z prefiksem AE:PL- i oficjalnym algorytmem walidacji
 - **Dropdown wyboru kraju** - dla IBAN (PL/DE/FR/GB)
 - **Instrukcje dla testerów** - Selenium, Playwright, Cypress
 - **Responsywny design** - działa na wszystkich urządzeniach
@@ -86,6 +88,27 @@ npm run dev
 - **Mężczyzna** → PESEL z cyfrą płci nieparzystą (1,3,5,7,9)
 - **K/M** → PESEL z losową cyfrą płci (0-9)
 
+### 📧 Pole "Adres do E-doręczeń" - nowa funkcjonalność:
+
+#### **Format adresu:**
+- ✅ **Prefiks:** `AE:PL-` (zawsze na początku)
+- ✅ **Struktura:** `AE:PL-XXXXX-XXXXX-XXXXX-XX`
+- ✅ **Części:**
+  - 2 × 5 cyfr losowych (00000-99999)
+  - 5 losowych liter (A-Z)
+  - 2-cyfrowa suma kontrolna (00-99)
+
+#### **Algorytm walidacji:**
+- ✅ **Suma ASCII** liter (część 4)
+- ✅ **Suma liczbowa** dwóch części cyfrowych
+- ✅ **Różnica bezwzględna** między sumami
+- ✅ **Suma cyfr** wyniku jako suma kontrolna
+
+#### **Przykład:**
+```
+AE:PL-12345-67890-ABCDE-12
+```
+
 ### 🤖 Automatyzacja testów:
 
 #### Selenium (Python):
@@ -104,8 +127,12 @@ print(f"PESEL: {pesel}")
 birth_date = driver.find_element(By.ID, "input-birthDate").get_attribute("value")
 print(f"Data urodzenia: {birth_date}")
 
+# Pobierz adres e-doręczeń
+edoreczenie = driver.find_element(By.ID, "input-edoreczenie").get_attribute("value")
+print(f"E-doręczenia: {edoreczenie}")
+
 # Pobierz wszystkie dane
-fields = ["firstName", "lastName", "pesel", "birthDate", "regon", "nip"]
+fields = ["firstName", "lastName", "pesel", "birthDate", "regon", "nip", "edoreczenie"]
 for field in fields:
     element = driver.find_element(By.ID, f"input-{field}")
     print(f"{field}: {element.get_attribute('value')}")
@@ -131,6 +158,9 @@ console.log('PESEL:', peselValue);
 
 const birthDateValue = await page.inputValue('#input-birthDate');
 console.log('Data urodzenia:', birthDateValue);
+
+const edoreczenieValue = await page.inputValue('#input-edoreczenie');
+console.log('E-doręczenia:', edoreczenieValue);
 
 // Obsługa checkboxa "Modyfikowana"
 const isModified = await page.isChecked('#birthDate-modified-checkbox');
@@ -161,6 +191,12 @@ describe('Generator Danych Testowych', () => {
     cy.get('#birthDate-modified-checkbox').check();
     cy.get('#input-birthDate').should('not.be.disabled');
   });
+
+  it('should generate valid e-doręczenia address', () => {
+    cy.visit('https://dane-testowe.netlify.app/');
+    cy.get('#input-edoreczenie').should('be.visible');
+    cy.get('#input-edoreczenie').should('have.value').and('match', /^AE:PL-\d{5}-\d{5}-[A-Z]{5}-\d{2}$/);
+  });
 });
 ```
 
@@ -170,6 +206,7 @@ Wszystkie algorytmy zostały zaimplementowane zgodnie z oficjalnymi specyfikacja
 
 - **PESEL** - z uwzględnieniem płci i wieku (cyfra płci na pozycji 10)
 - **Data urodzenia** - automatyczne wyciąganie z PESEL z możliwością modyfikacji
+- **Adres e-doręczeń** - format AE:PL-XXXXX-XXXXX-XXXXX-XX z oficjalnym algorytmem walidacji
 - **REGON** - obsługa formatów 9 i 14 cyfr z cyframi regionu
 - **NIP** - z poprawną cyfrą kontrolną (pierwsze 3 cyfry nie mogą być zerami)
 - **Numer dowodu osobistego** - z prefiksami A, C, D i cyfrą kontrolną
@@ -196,7 +233,7 @@ Ten projekt jest dostępny na licencji MIT. Zobacz plik `LICENSE` dla szczegół
 
 ## 🏷️ Tagi i słowa kluczowe
 
-`generator danych testowych` `PESEL generator` `data urodzenia generator` `REGON generator` `NIP generator` `dowód osobisty generator` `mDowód generator` `paszport generator` `księga wieczysta generator` `NRB generator` `IBAN generator` `SWIFT generator` `GUID generator` `dane testowe` `testy automatyczne` `selenium` `playwright` `cypress` `automatyzacja testów` `polskie dane testowe` `fake data generator` `test data` `QA testing tools` `react` `typescript` `vite` `tailwind css` `polski generator` `dane testowe polska` `generator dokumentów` `walidacja danych` `cyfra kontrolna` `algorytm walidacji` `kalendarz HTML5` `synchronizacja PESEL`
+`generator danych testowych` `PESEL generator` `data urodzenia generator` `adres e-doręczeń generator` `REGON generator` `NIP generator` `dowód osobisty generator` `mDowód generator` `paszport generator` `księga wieczysta generator` `NRB generator` `IBAN generator` `SWIFT generator` `GUID generator` `dane testowe` `testy automatyczne` `selenium` `playwright` `cypress` `automatyzacja testów` `polskie dane testowe` `fake data generator` `test data` `QA testing tools` `react` `typescript` `vite` `tailwind css` `polski generator` `dane testowe polska` `generator dokumentów` `walidacja danych` `cyfra kontrolna` `algorytm walidacji` `kalendarz HTML5` `synchronizacja PESEL` `e-doręczenia` `adres elektroniczny`
 
 ## 🔗 Linki
 

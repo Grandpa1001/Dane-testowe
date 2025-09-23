@@ -15,6 +15,7 @@ interface TestData {
   swift: string;
   guid: string;
   birthDate: string; // Format: YYYY-MM-DD
+  edoreczenie: string; // Format: AE:PL-XXXXX-XXXXX-XXXXX-XX
 }
 
 function App() {
@@ -31,7 +32,8 @@ function App() {
     landRegisterNumber: '',
     swift: '',
     guid: '',
-    birthDate: ''
+    birthDate: '',
+    edoreczenie: ''
   });
   
   const [copiedField, setCopiedField] = useState<string>('');
@@ -179,10 +181,29 @@ function App() {
       m = date.getMonth() + 1; // getMonth() zwraca 0-11
       d = date.getDate();
     } else {
-      // Generuj losową datę urodzenia (1900-2099)
-      fullYear = randomInt(1900, 2099);
-      m = randomInt(1, 12);
-      d = randomInt(1, 28);
+      // Generuj losową datę urodzenia (1900-dzisiaj)
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth() + 1; // getMonth() zwraca 0-11
+      const currentDay = today.getDate();
+      
+      fullYear = randomInt(1900, currentYear);
+      
+      if (fullYear === currentYear) {
+        // Jeśli generujemy datę z bieżącego roku, ogranicz miesiąc i dzień
+        m = randomInt(1, currentMonth);
+        if (m === currentMonth) {
+          // Jeśli generujemy datę z bieżącego miesiąca, ogranicz dzień
+          d = randomInt(1, currentDay);
+        } else {
+          // Dla innych miesięcy w bieżącym roku, użyj pełnego zakresu dni
+          d = randomInt(1, 28);
+        }
+      } else {
+        // Dla lat poprzednich, użyj pełnego zakresu
+        m = randomInt(1, 12);
+        d = randomInt(1, 28);
+      }
     }
     
     const y = fullYear % 100;
@@ -601,6 +622,35 @@ function App() {
     ].join('-');
   };
 
+  // Generowanie adresu e-doręczeń - zgodnie z oficjalnym algorytmem
+  const generateEdoreczenie = (): string => {
+    // Helpery
+    const rand5digits = () => String(Math.floor(Math.random() * 100000)).padStart(5, '0');
+    const rand5letters = () => {
+      const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let s = '';
+      for (let i = 0; i < 5; i++) s += A[Math.floor(Math.random() * A.length)];
+      return s;
+    };
+
+    const part2 = rand5digits();
+    const part3 = rand5digits();
+    const part4 = rand5letters();
+
+    const asciiSum = [...part4].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+    const numSum = parseInt(part2, 10) + parseInt(part3, 10);
+    const controlSum = Math.abs(asciiSum - numSum);
+
+    const digitsSum = String(controlSum)
+      .split('')
+      .reduce((s, d) => s + parseInt(d, 10), 0);
+
+    const checksum = String(digitsSum).padStart(2, '0');
+
+    const result = `${part2}-${part3}-${part4}-${checksum}`;
+    return `AE:PL-${result}`;
+  };
+
   // Generowanie wszystkich danych
   const generateAllData = (): TestData => {
     const selectedGender = gender === 'K/M' ? (randomInt(0, 1) === 0 ? 'K' : 'M') : gender;
@@ -625,7 +675,8 @@ function App() {
       landRegisterNumber: generateLandRegisterNumber(),
       swift: generateSWIFT(),
       guid: generateGUID(),
-      birthDate: birthDate
+      birthDate: birthDate,
+      edoreczenie: generateEdoreczenie()
     };
   };
 
@@ -695,6 +746,9 @@ function App() {
       case 'guid':
         newData.guid = generateGUID();
         break;
+      case 'edoreczenie':
+        newData.edoreczenie = generateEdoreczenie();
+        break;
     }
     
     setData(newData);
@@ -728,7 +782,8 @@ function App() {
     { key: 'passportNumber' as keyof TestData, label: 'Numer paszportu' },
     { key: 'landRegisterNumber' as keyof TestData, label: 'Księga wieczysta' },
     { key: 'swift' as keyof TestData, label: 'SWIFT' },
-    { key: 'guid' as keyof TestData, label: 'GUID' }
+    { key: 'guid' as keyof TestData, label: 'GUID' },
+    { key: 'edoreczenie' as keyof TestData, label: 'Adres do E-doręczeń' }
   ];
 
   return (
@@ -742,7 +797,7 @@ function App() {
                 Generator Danych Testowych
               </h1>
               <p className="text-gray-600 text-sm">
-                PESEL, REGON, NIP, dowód osobisty (ABC012345), mDowód, paszport, księga wieczysta, NRB, SWIFT, GUID
+                PESEL, REGON, NIP, dowód osobisty (ABC012345), mDowód, paszport, księga wieczysta, NRB, SWIFT, GUID, adres e-doręczeń
               </p>
               <p className="text-gray-500 text-xs mt-1">
                 Kliknij pole aby skopiować • Użyj ↻ do odświeżania
@@ -1259,6 +1314,9 @@ function App() {
                   </div>
                   <div className="bg-white p-2 border-2 border-black">
                     <strong className="text-black">GUID:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-guid</code>
+                  </div>
+                  <div className="bg-white p-2 border-2 border-black">
+                    <strong className="text-black">E-doręczenia:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-edoreczenie</code>
                   </div>
                 </div>
               </div>
