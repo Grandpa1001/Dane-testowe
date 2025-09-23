@@ -45,6 +45,7 @@ function App() {
   const [gender, setGender] = useState<'K' | 'M' | 'K/M'>('K/M');
   const [isBirthDateModified, setIsBirthDateModified] = useState<boolean>(false);
   const [showFloatingButton, setShowFloatingButton] = useState<boolean>(true);
+  const [showMichael, setShowMichael] = useState<boolean>(false);
 
   // Obsługa zmiany płci - przegenerowuje imię i PESEL
   const handleGenderChange = (newGender: 'K' | 'M' | 'K/M') => {
@@ -802,6 +803,31 @@ Jeśli masz pomysł na implementację, opisz go...`;
   };
 
 
+  // Obsługa zaznaczenia tekstu
+  useEffect(() => {
+    const handleSelection = () => {
+      const selection = window.getSelection();
+      const selectedText = selection?.toString() || '';
+      
+      console.log('Zaznaczony tekst:', selectedText); // Debug
+      
+      // Sprawdź czy zaznaczony tekst zawiera ":D"
+      if (selectedText.includes(':D')) {
+        console.log('Pokazuję Michaela!'); // Debug
+        setShowMichael(true);
+      } else {
+        console.log('Ukrywam Michaela'); // Debug
+        setShowMichael(false);
+      }
+    };
+
+    document.addEventListener('selectionchange', handleSelection);
+    
+    return () => {
+      document.removeEventListener('selectionchange', handleSelection);
+    };
+  }, []);
+
   // Inicjalizacja danych przy uruchomieniu
   useEffect(() => {
     setData(generateAllData());
@@ -825,19 +851,17 @@ Jeśli masz pomysł na implementację, opisz go...`;
 
   return (
     <div id="app-container" data-testid="app-container" className="min-h-screen bg-white">
-      {/* Hidden greetings visible only on selection */}
-      <span
-        aria-hidden="true"
-        className="fixed left-2 top-1/2 -translate-y-1/2 transform pointer-events-none select-text text-white selection:text-black selection:bg-yellow-200 font-black text-xl md:text-2xl lg:text-3xl tracking-tight"
-      >
-        Miłego
-      </span>
-      <span
-        aria-hidden="true"
-        className="fixed right-2 top-1/2 -translate-y-1/2 transform pointer-events-none select-text text-white selection:text-black selection:bg-yellow-200 font-black text-xl md:text-2xl lg:text-3xl tracking-tight"
-      >
-        dnia!
-      </span>
+      {/* Prawy panel: obrazek (gdy zaznaczone) + tekst ":D" POD obrazkiem */}
+      <div className="fixed right-2 top-1/2 -translate-y-1/2 transform pointer-events-none z-50 flex flex-col items-end">
+        {showMichael && (
+          <img
+            src="/michael.png"
+            alt="Michael"
+            className="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 animate-pulse"
+          />
+        )}
+        <span className="mt-2 text-white select-text font-black text-xl md:text-2xl lg:text-3xl">:D</span>
+      </div>
       {/* Header */}
       <header className="bg-white border-b-2 border-black">
         <div className="max-w-4xl mx-auto px-4 py-6">
