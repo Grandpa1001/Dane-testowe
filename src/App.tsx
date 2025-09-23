@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { RefreshCw, Copy, Github, X, Info, Bug, Lightbulb } from 'lucide-react';
 
 interface TestData {
@@ -46,6 +46,8 @@ function App() {
   const [isBirthDateModified, setIsBirthDateModified] = useState<boolean>(false);
   const [showFloatingButton, setShowFloatingButton] = useState<boolean>(true);
   const [showMichael, setShowMichael] = useState<boolean>(false);
+  const [isFeedbackMenuOpen, setIsFeedbackMenuOpen] = useState<boolean>(false);
+  const feedbackRef = useRef<HTMLDivElement | null>(null);
 
   // Obsługa zmiany płci - przegenerowuje imię i PESEL
   const handleGenderChange = (newGender: 'K' | 'M' | 'K/M') => {
@@ -832,6 +834,23 @@ Jeśli masz pomysł na implementację, opisz go...`;
   useEffect(() => {
     setData(generateAllData());
   }, []);
+
+  // Zamykaj menu feedback po kliknięciu poza obszarem
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!isFeedbackMenuOpen) return;
+      const target = event.target as Node;
+      if (feedbackRef.current && !feedbackRef.current.contains(target)) {
+        setIsFeedbackMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isFeedbackMenuOpen]);
 
   const fields = [
     { key: 'firstName' as keyof TestData, label: 'Imię' },
@@ -1997,26 +2016,28 @@ Finalny numer: ABC412345`}</pre>
       {/* Floating Feedback Button */}
       {showFloatingButton && (
         <div className="fixed bottom-6 right-6 z-50">
-          <div className="relative group">
+          <div className="relative" ref={feedbackRef}>
             {/* Main floating button */}
             <button
-              onClick={() => setShowFloatingButton(false)}
-              className="w-14 h-14 bg-black text-white rounded-full shadow-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-300 flex items-center justify-center group-hover:scale-110"
+              onClick={() => setIsFeedbackMenuOpen(prev => !prev)}
+              className={`w-14 h-14 bg-black text-white rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-300 flex items-center justify-center ${isFeedbackMenuOpen ? 'scale-110' : 'hover:bg-gray-800'}`}
               title="Zgłoś błąd lub zaproponuj funkcję"
+              aria-expanded={isFeedbackMenuOpen}
+              aria-haspopup="true"
             >
               <Bug size={20} />
             </button>
             
             {/* Tooltip */}
-            <div className="absolute bottom-1/2 right-full mr-2 px-3 py-2 bg-black text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap transform -translate-y-1/2">
+            <div className={`absolute bottom-1/2 right-full mr-2 px-3 py-2 bg-black text-white text-xs font-bold rounded-lg transition-opacity duration-300 whitespace-nowrap transform -translate-y-1/2 ${isFeedbackMenuOpen ? 'opacity-100' : 'opacity-0'}`}>
               Zgłoś błąd lub zaproponuj funkcję
             </div>
             
             {/* Submenu buttons */}
-            <div className="absolute bottom-16 right-0 space-y-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+            <div className={`absolute bottom-16 right-0 space-y-2 transition-all duration-300 transform ${isFeedbackMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
               {/* Bug report button */}
               <button
-                onClick={() => openGitHubIssue('bug')}
+                onClick={() => { setIsFeedbackMenuOpen(false); openGitHubIssue('bug'); }}
                 className="w-12 h-12 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-300 flex items-center justify-center hover:scale-110"
                 title="Zgłoś błąd"
               >
@@ -2025,7 +2046,7 @@ Finalny numer: ABC412345`}</pre>
               
               {/* Feature request button */}
               <button
-                onClick={() => openGitHubIssue('feature')}
+                onClick={() => { setIsFeedbackMenuOpen(false); openGitHubIssue('feature'); }}
                 className="w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 flex items-center justify-center hover:scale-110"
                 title="Zaproponuj funkcję"
               >
