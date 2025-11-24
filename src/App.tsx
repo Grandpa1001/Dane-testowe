@@ -48,6 +48,7 @@ function App() {
   const [showMichael, setShowMichael] = useState<boolean>(false);
   const [isFeedbackMenuOpen, setIsFeedbackMenuOpen] = useState<boolean>(false);
   const feedbackRef = useRef<HTMLDivElement | null>(null);
+  const [regonLength, setRegonLength] = useState<9 | 14>(9);
 
   // Obsługa zmiany płci - przegenerowuje imię i PESEL
   const handleGenderChange = (newGender: 'K' | 'M' | 'K/M') => {
@@ -263,8 +264,10 @@ function App() {
   };
 
   // Generowanie REGON - zgodnie z oficjalnym algorytmem
-  const generateREGON = (): string => {
-    // Generuj 9-cyfrowy REGON (domyślnie)
+  const generateREGON = (length: 9 | 14 = regonLength): string => {
+    if (length === 14) {
+      return generateREGON14();
+    }
     return generateREGON9();
   };
 
@@ -292,6 +295,35 @@ function App() {
       cyfra_kontrolna += weights[i] * cyfry[i];
     }
     cyfra_kontrolna = (cyfra_kontrolna % 11) % 10;
+
+    // Połącz wszystkie cyfry
+    let result = cyfry.join('');
+    result += cyfra_kontrolna;
+    return result;
+  };
+
+  // Generowanie 14-cyfrowego REGON (jednostka lokalna)
+  const generateREGON14 = (): string => {
+    const weights = [2, 4, 8, 5, 0, 9, 7, 3, 6, 1, 2, 4, 8];
+    
+    // Pierwsze 9 cyfr to REGON jednostki macierzystej (9-cyfrowy REGON)
+    const regon9 = generateREGON9();
+    const cyfry = regon9.split('').map(Number);
+    
+    // Kolejne 4 cyfry to liczba porządkowa jednostki lokalnej
+    for (let i = 9; i < 13; i++) {
+      cyfry[i] = randomInt(0, 9);
+    }
+
+    // Oblicz cyfrę kontrolną dla 14-cyfrowego REGON
+    let cyfra_kontrolna = 0;
+    for (let i = 0; i < weights.length; i++) {
+      cyfra_kontrolna += weights[i] * cyfry[i];
+    }
+    cyfra_kontrolna = cyfra_kontrolna % 11;
+    if (cyfra_kontrolna === 10) {
+      cyfra_kontrolna = 0;
+    }
 
     // Połącz wszystkie cyfry
     let result = cyfry.join('');
@@ -670,7 +702,7 @@ function App() {
       firstName: firstName,
       lastName: lastNames[randomInt(0, lastNames.length - 1)],
       pesel: pesel,
-      regon: generateREGON(),
+      regon: generateREGON(regonLength),
       nip: generateNIP(),
       nrb: generateNRB(),
       idNumber: generateIDNumber(),
@@ -724,7 +756,7 @@ function App() {
         }
         break;
       case 'regon':
-        newData.regon = generateREGON();
+        newData.regon = generateREGON(regonLength);
         break;
       case 'nip':
         newData.nip = generateNIP();
@@ -1195,12 +1227,48 @@ Jeśli masz pomysł na implementację, opisz go...`;
               data-field-label="REGON"
               className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative"
             >
-              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
-                REGON
-                <span className="text-gray-500 font-normal normal-case ml-2">
-                  ID: input-regon
-                </span>
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                  REGON
+                  <span className="text-gray-500 font-normal normal-case ml-2">
+                    ID: input-regon
+                  </span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <label className="flex items-center gap-1 text-xs">
+                    <input
+                      type="radio"
+                      name="regon-length"
+                      value="9"
+                      checked={regonLength === 9}
+                      onChange={() => {
+                        setRegonLength(9);
+                        const newData = { ...data };
+                        newData.regon = generateREGON(9);
+                        setData(newData);
+                      }}
+                      className="w-3 h-3 accent-black border-2 border-gray-300 focus:ring-black focus:ring-1"
+                    />
+                    <span className="text-gray-700 font-bold">9</span>
+                  </label>
+                  <label className="flex items-center gap-1 text-xs">
+                    <input
+                      type="radio"
+                      name="regon-length"
+                      value="14"
+                      checked={regonLength === 14}
+                      onChange={() => {
+                        setRegonLength(14);
+                        const newData = { ...data };
+                        newData.regon = generateREGON(14);
+                        setData(newData);
+                      }}
+                      className="w-3 h-3 accent-black border-2 border-gray-300 focus:ring-black focus:ring-1"
+                    />
+                    <span className="text-gray-700 font-bold">14</span>
+                  </label>
+                </div>
+              </div>
               
               <div className="flex gap-2">
                 <input

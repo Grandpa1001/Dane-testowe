@@ -42,6 +42,15 @@ export const validatePESEL = (pesel: string): boolean => {
 };
 
 export const validateREGON = (regon: string): boolean => {
+  if (/^\d{9}$/.test(regon)) {
+    return validateREGON9(regon);
+  } else if (/^\d{14}$/.test(regon)) {
+    return validateREGON14(regon);
+  }
+  return false;
+};
+
+export const validateREGON9 = (regon: string): boolean => {
   if (!/^\d{9}$/.test(regon)) return false;
   
   const weights = [8, 9, 2, 3, 4, 5, 6, 7];
@@ -53,6 +62,26 @@ export const validateREGON = (regon: string): boolean => {
   
   const checkDigit = (sum % 11) % 10;
   return checkDigit === parseInt(regon[8]);
+};
+
+export const validateREGON14 = (regon: string): boolean => {
+  if (!/^\d{14}$/.test(regon)) return false;
+  
+  // Najpierw sprawdź czy pierwsze 9 cyfr to poprawny REGON 9-cyfrowy
+  const regon9 = regon.substring(0, 9);
+  if (!validateREGON9(regon9)) return false;
+  
+  // Teraz sprawdź cyfrę kontrolną dla 14-cyfrowego REGON
+  const weights = [2, 4, 8, 5, 0, 9, 7, 3, 6, 1, 2, 4, 8];
+  let sum = 0;
+  
+  for (let i = 0; i < 13; i++) {
+    sum += parseInt(regon[i]) * weights[i];
+  }
+  
+  const checkDigit = sum % 11;
+  const expectedCheckDigit = checkDigit === 10 ? 0 : checkDigit;
+  return expectedCheckDigit === parseInt(regon[13]);
 };
 
 export const validateNIP = (nip: string): boolean => {
