@@ -50,11 +50,11 @@ function App() {
   const feedbackRef = useRef<HTMLDivElement | null>(null);
   const [regonLength, setRegonLength] = useState<9 | 14>(9);
 
-  // Obsługa zmiany płci - przegenerowuje imię i PESEL
+  // Obsługa zmiany płci - przegenerowuje imię, nazwisko i PESEL
   const handleGenderChange = (newGender: 'K' | 'M' | 'K/M') => {
     setGender(newGender);
     
-    // Przegeneruj imię i PESEL zgodnie z nową płcią
+    // Przegeneruj imię, nazwisko i PESEL zgodnie z nową płcią
     const newData = { ...data };
     
     // Generuj nowe imię
@@ -62,6 +62,9 @@ function App() {
     newData.firstName = selectedGender === 'K' 
       ? femaleNames[randomInt(0, femaleNames.length - 1)]
       : maleNames[randomInt(0, maleNames.length - 1)];
+    
+    // Generuj nowe nazwisko zgodnie z płcią imienia
+    newData.lastName = generateLastNameWithGender(newGender, newData.firstName);
     
     // Generuj nowy PESEL (uwzględniając modyfikowaną datę jeśli jest zaznaczona)
     if (isBirthDateModified && data.birthDate) {
@@ -119,6 +122,76 @@ function App() {
     'Zieliński', 'Szymański', 'Woźniak', 'Dąbrowski', 'Kozłowski', 'Jankowski', 'Mazur',
     'Wojciechowski', 'Kwiatkowski', 'Krawczyk', 'Kaczmarek', 'Piotrowski', 'Grabowski'
   ];
+
+  // Funkcja określająca płeć na podstawie imienia
+  const getGenderFromFirstName = (firstName: string): 'K' | 'M' => {
+    if (femaleNames.includes(firstName)) {
+      return 'K';
+    }
+    if (maleNames.includes(firstName)) {
+      return 'M';
+    }
+    // Jeśli nie znaleziono, losowo (ale to nie powinno się zdarzyć)
+    return randomInt(0, 1) === 0 ? 'K' : 'M';
+  };
+
+  // Funkcja konwertująca nazwisko męskie na żeńskie
+  const convertLastNameToFemale = (maleLastName: string): string => {
+    // Jeśli kończy się na -ski -> -ska
+    if (maleLastName.endsWith('ski')) {
+      return maleLastName.slice(0, -3) + 'ska';
+    }
+    // Jeśli kończy się na -cki -> -cka
+    if (maleLastName.endsWith('cki')) {
+      return maleLastName.slice(0, -3) + 'cka';
+    }
+    // Jeśli kończy się na -dzki -> -dzka
+    if (maleLastName.endsWith('dzki')) {
+      return maleLastName.slice(0, -4) + 'dzka';
+    }
+    // Jeśli kończy się na -ak, -ek, -ik, -yk -> bez zmian (Nowak, Kowalczyk, Wójcik)
+    if (maleLastName.endsWith('ak') || maleLastName.endsWith('ek') || 
+        maleLastName.endsWith('ik') || maleLastName.endsWith('yk')) {
+      return maleLastName;
+    }
+    // Jeśli kończy się na -czyk -> -czyk (bez zmian, np. Kowalczyk)
+    if (maleLastName.endsWith('czyk')) {
+      return maleLastName;
+    }
+    // Jeśli kończy się na -ur -> -ur (bez zmian, np. Mazur)
+    if (maleLastName.endsWith('ur')) {
+      return maleLastName;
+    }
+    // Dla pozostałych dodajemy -a (jeśli jeszcze nie kończy się na 'a')
+    if (!maleLastName.endsWith('a')) {
+      return maleLastName + 'a';
+    }
+    // Jeśli już kończy się na 'a', zostawiamy bez zmian
+    return maleLastName;
+  };
+
+  // Generowanie nazwiska z uwzględnieniem płci
+  const generateLastNameWithGender = (gender: 'K' | 'M' | 'K/M', firstName?: string): string => {
+    // Jeśli podano imię, użyj płci z imienia
+    let actualGender: 'K' | 'M';
+    if (firstName) {
+      actualGender = getGenderFromFirstName(firstName);
+    } else if (gender === 'K/M') {
+      actualGender = randomInt(0, 1) === 0 ? 'K' : 'M';
+    } else {
+      actualGender = gender;
+    }
+
+    // Wybierz losowe nazwisko męskie
+    const maleLastName = lastNames[randomInt(0, lastNames.length - 1)];
+
+    // Jeśli płeć żeńska, skonwertuj na żeńską formę
+    if (actualGender === 'K') {
+      return convertLastNameToFemale(maleLastName);
+    }
+
+    return maleLastName;
+  };
 
   // Generowanie losowej liczby
   const randomInt = (min: number, max: number): number => {
@@ -700,7 +773,7 @@ function App() {
     
     return {
       firstName: firstName,
-      lastName: lastNames[randomInt(0, lastNames.length - 1)],
+      lastName: generateLastNameWithGender(selectedGender, firstName),
       pesel: pesel,
       regon: generateREGON(regonLength),
       nip: generateNIP(),
@@ -737,9 +810,12 @@ function App() {
         newData.firstName = selectedGender === 'K' 
           ? femaleNames[randomInt(0, femaleNames.length - 1)]
           : maleNames[randomInt(0, maleNames.length - 1)];
+        // Przegeneruj nazwisko zgodnie z nowym imieniem
+        newData.lastName = generateLastNameWithGender(gender, newData.firstName);
         break;
       case 'lastName':
-        newData.lastName = lastNames[randomInt(0, lastNames.length - 1)];
+        // Generuj nazwisko zgodnie z płcią imienia
+        newData.lastName = generateLastNameWithGender(gender, data.firstName);
         break;
       case 'pesel':
         if (isBirthDateModified && data.birthDate) {
