@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { RefreshCw, Copy, Github, X, Info, Bug, Lightbulb } from 'lucide-react';
+import { RefreshCw, Copy, Github, X, Info, Bug, Lightbulb, Sparkles, ExternalLink } from 'lucide-react';
 
 interface TestData {
   firstName: string;
@@ -1042,6 +1042,33 @@ Jeśli masz pomysł na implementację, opisz go...`;
           </div>
         </div>
       </header>
+
+      {/* Nowość: widget AI do Chrome */}
+      <div className="bg-yellow-50 border-b-2 border-black">
+        <div className="max-w-4xl mx-auto px-4 py-3">
+          <a
+            href="https://chromewebstore.google.com/detail/mlcaafkfecdolbbdehmlinmflgehojed?utm_source=item-share-cb"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col sm:flex-row items-center justify-between gap-3 group"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1 px-2 py-1 bg-black text-white text-xs font-black uppercase tracking-wide">
+                <Sparkles size={14} />
+                Nowość
+              </span>
+              <div className="text-sm text-black">
+                <span className="font-bold">Widget AI do Chrome</span>
+                <span className="text-gray-700"> — wypróbuj nasze nowe rozszerzenie do przeglądarki Chrome</span>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-black text-white font-bold text-sm group-hover:bg-gray-800 transition-colors whitespace-nowrap">
+              Zainstaluj
+              <ExternalLink size={14} />
+            </span>
+          </a>
+        </div>
+      </div>
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-6">
@@ -2138,14 +2165,14 @@ Finalny numer: ABC412345`}</pre>
               <span>Grandpa1001</span>
             </a>
             <a
-              href="https://mgrgracz.netlify.app/"
+              href="https://kamil-bandzwolek.pl/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-3 py-1 bg-black text-white font-bold text-sm hover:bg-gray-800 transition-colors"
             >
-              <img 
-                src="/WasiHead.png" 
-                alt="Wasi" 
+              <img
+                src="/WasiHead.png"
+                alt="Wasi"
                 className="w-4 h-4 object-contain"
               />
               <span>Website</span>

@@ -273,13 +273,13 @@ Ten projekt jest dostępny na licencji MIT. Zobacz plik `LICENSE` dla szczegół
 - **🐛 Zgłoś błąd:** https://github.com/Grandpa1001/Dane-testowe/issues/new
 - **💡 Nowa funkcja:** https://github.com/Grandpa1001/Dane-testowe/issues/new
 - **👨‍💻 Autor:** https://github.com/Grandpa1001
-- **🌍 Website:** https://mgrgracz.netlify.app/
+- **🌍 Website:** https://kamil-bandzwolek.pl/
 
 ## 👨‍💻 Autor
 
 **Grandpa1001**
 - GitHub: [@Grandpa1001](https://github.com/Grandpa1001)
-- Website: [mgrgracz.netlify.app](https://mgrgracz.netlify.app/)
+- Website: [kamil-bandzwolek.pl](https://kamil-bandzwolek.pl/)
 
 ---
 
