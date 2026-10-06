@@ -977,6 +977,24 @@ Jeśli masz pomysł na implementację, opisz go...`;
     { key: 'edoreczenie' as keyof TestData, label: 'Adres do E-doręczeń' }
   ];
 
+  // Bez ręcznego wyboru motyw podąża za ustawieniem systemu (także na żywo)
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = (e: MediaQueryListEvent) => {
+      let saved: string | null = null;
+      try {
+        saved = localStorage.getItem('theme');
+      } catch {
+        // brak localStorage - traktuj jak brak ręcznego wyboru
+      }
+      if (saved) return;
+      document.documentElement.classList.toggle('dark', e.matches);
+      setIsDark(e.matches);
+    };
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
   const toggleTheme = () => {
     const next = !isDark;
     setIsDark(next);
