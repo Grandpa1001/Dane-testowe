@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { RefreshCw, Copy, Github, X, Info, Bug, Lightbulb, Sparkles, ExternalLink } from 'lucide-react';
+import { RefreshCw, Copy, Github, X, Info, Bug, Lightbulb, Sparkles, ExternalLink, Sun, Moon } from 'lucide-react';
 
 interface TestData {
   firstName: string;
@@ -45,6 +45,7 @@ function App() {
   const [gender, setGender] = useState<'K' | 'M' | 'K/M'>('K/M');
   const [isBirthDateModified, setIsBirthDateModified] = useState<boolean>(false);
   const [showFloatingButton, setShowFloatingButton] = useState<boolean>(true);
+  const [isDark, setIsDark] = useState<boolean>(() => document.documentElement.classList.contains('dark'));
   const [showMichael, setShowMichael] = useState<boolean>(false);
   const [isFeedbackMenuOpen, setIsFeedbackMenuOpen] = useState<boolean>(false);
   const feedbackRef = useRef<HTMLDivElement | null>(null);
@@ -976,8 +977,19 @@ Jeśli masz pomysł na implementację, opisz go...`;
     { key: 'edoreczenie' as keyof TestData, label: 'Adres do E-doręczeń' }
   ];
 
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    try {
+      localStorage.setItem('theme', next ? 'dark' : 'light');
+    } catch {
+      // localStorage niedostępny - motyw obowiązuje tylko w tej sesji
+    }
+  };
+
   return (
-    <div id="app-container" data-testid="app-container" className="min-h-screen bg-white">
+    <div id="app-container" data-testid="app-container" className="min-h-screen bg-surface">
       {/* Prawy panel: obrazek (gdy zaznaczone) + tekst ":D" POD obrazkiem */}
       <div className="fixed right-2 top-1/2 -translate-y-1/2 transform pointer-events-none z-50 flex flex-col items-end">
         {showMichael && (
@@ -987,28 +999,38 @@ Jeśli masz pomysł na implementację, opisz go...`;
             className="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 animate-pulse"
           />
         )}
-        <span className="mt-2 text-white select-text font-black text-xl md:text-2xl lg:text-3xl">:D</span>
+        <span className="mt-2 text-surface select-text font-black text-xl md:text-2xl lg:text-3xl">:D</span>
       </div>
       {/* Header */}
-      <header className="bg-white border-b-2 border-black">
-        <div className="max-w-4xl mx-auto px-4 py-6">
+      <header className="bg-surface border-b-2 border-ink">
+        <div className="max-w-4xl mx-auto px-4 py-6 relative">
+          <button
+            id="theme-toggle"
+            data-testid="theme-toggle"
+            onClick={toggleTheme}
+            aria-label={isDark ? 'Przełącz na tryb jasny' : 'Przełącz na tryb ciemny'}
+            title={isDark ? 'Tryb jasny' : 'Tryb ciemny'}
+            className="fixed top-3 right-3 z-50 flex items-center justify-center w-10 h-10 rounded-full border border-ink/30 bg-surface/80 backdrop-blur text-ink shadow-md hover:bg-ink hover:text-inverse hover:rotate-12 focus:outline-none focus:ring-2 focus:ring-ink/50 transition-all duration-300"
+          >
+            {isDark ? <Sun size={20} strokeWidth={1.75} /> : <Moon size={20} strokeWidth={1.75} />}
+          </button>
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-center md:text-left">
-              <h1 className="text-3xl md:text-4xl font-black text-black mb-2">
+              <h1 className="text-3xl md:text-4xl font-black text-ink mb-2">
                 Generator Danych Testowych
               </h1>
-              <p className="text-gray-600 text-sm">
+              <p className="text-subtle text-sm">
                 PESEL, REGON, NIP, dowód osobisty (ABC012345), mDowód, paszport, księga wieczysta, NRB, SWIFT, GUID, adres e-doręczeń
               </p>
-              <p className="text-gray-500 text-xs mt-1">
+              <p className="text-subtle text-xs mt-1">
                 Kliknij pole aby skopiować • Użyj ↻ do odświeżania
               </p>
-              <div className="bg-gray-50 border-2 border-black p-2 mt-2 text-xs">
-                <span className="font-bold text-black">Automatyzacja:</span> 
-                <span className="text-gray-700"> Każde pole ma unikalny ID (np. input-pesel). </span>
+              <div className="bg-muted border-2 border-ink p-2 mt-2 text-xs">
+                <span className="font-bold text-ink">Automatyzacja:</span> 
+                <span className="text-subtle"> Każde pole ma unikalny ID (np. input-pesel). </span>
                 <button 
                   onClick={() => setShowHelpModal(true)}
-                  className="text-black underline hover:text-gray-600 font-bold"
+                  className="text-ink underline hover:text-ink font-bold"
                 >
                   Zobacz instrukcje →
                 </button>
@@ -1017,10 +1039,10 @@ Jeśli masz pomysł na implementację, opisz go...`;
             
             {/* Computer illustration */}
             <div className="flex-shrink-0">
-              <div className="w-32 h-24 md:w-40 md:h-30 bg-black rounded-lg relative">
+              <div className="w-32 h-24 md:w-40 md:h-30 bg-ink rounded-lg relative">
                 {/* Monitor */}
-                <div className="absolute inset-2 bg-white rounded border-2 border-black">
-                  <div className="w-full h-2 bg-black rounded-t"></div>
+                <div className="absolute inset-2 bg-surface rounded border-2 border-ink">
+                  <div className="w-full h-2 bg-ink rounded-t"></div>
                   <div className="p-2 pb-4 flex items-center justify-center h-full">
                     <img 
                       src="/Wasi_noBackground.png" 
@@ -1030,13 +1052,13 @@ Jeśli masz pomysł na implementację, opisz go...`;
                   </div>
                 </div>
                 {/* Stand */}
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-4 bg-black rounded-b"></div>
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-4 bg-ink rounded-b"></div>
                 {/* Base */}
-                <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-black rounded"></div>
+                <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-ink rounded"></div>
                 {/* Decorative elements */}
-                <div className="absolute -top-2 -right-2 w-3 h-3 border-2 border-black rounded-full bg-white"></div>
-                <div className="absolute -top-4 right-4 w-2 h-2 border-2 border-black rounded-full bg-white"></div>
-                <div className="absolute -left-3 top-2 w-2 h-2 border-2 border-black rounded-full bg-white"></div>
+                <div className="absolute -top-2 -right-2 w-3 h-3 border-2 border-ink rounded-full bg-surface"></div>
+                <div className="absolute -top-4 right-4 w-2 h-2 border-2 border-ink rounded-full bg-surface"></div>
+                <div className="absolute -left-3 top-2 w-2 h-2 border-2 border-ink rounded-full bg-surface"></div>
               </div>
             </div>
           </div>
@@ -1044,7 +1066,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
       </header>
 
       {/* Nowość: widget AI do Chrome */}
-      <div className="bg-yellow-50 border-b-2 border-black">
+      <div className="bg-yellow-50 dark:bg-yellow-950/40 border-b-2 border-ink">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <a
             href="https://chromewebstore.google.com/detail/mlcaafkfecdolbbdehmlinmflgehojed?utm_source=item-share-cb"
@@ -1053,16 +1075,16 @@ Jeśli masz pomysł na implementację, opisz go...`;
             className="flex flex-col sm:flex-row items-center justify-between gap-3 group"
           >
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 px-2 py-1 bg-black text-white text-xs font-black uppercase tracking-wide">
+              <span className="flex items-center gap-1 px-2 py-1 bg-ink text-inverse text-xs font-black uppercase tracking-wide">
                 <Sparkles size={14} />
                 Nowość
               </span>
-              <div className="text-sm text-black">
+              <div className="text-sm text-ink">
                 <span className="font-bold">Widget AI do Chrome</span>
-                <span className="text-gray-700"> — wypróbuj nasze nowe rozszerzenie do przeglądarki Chrome</span>
+                <span className="text-subtle"> — wypróbuj nasze nowe rozszerzenie do przeglądarki Chrome</span>
               </div>
             </div>
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-black text-white font-bold text-sm group-hover:bg-gray-800 transition-colors whitespace-nowrap">
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-ink text-inverse font-bold text-sm group-hover:opacity-80 transition-colors whitespace-nowrap">
               Zainstaluj
               <ExternalLink size={14} />
             </span>
@@ -1081,11 +1103,11 @@ Jeśli masz pomysł na implementację, opisz go...`;
               data-testid="field-container-firstName"
               data-field-type="firstName"
               data-field-label="Imię"
-              className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative"
+              className="bg-surface border-2 border-ink p-3 hover:shadow-lg transition-shadow relative"
             >
-              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
+              <label className="block text-xs font-bold text-subtle mb-1 uppercase tracking-wide">
                 Imię
-                <span className="text-gray-500 font-normal normal-case ml-2">
+                <span className="text-subtle font-normal normal-case ml-2">
                   ID: input-firstName
                 </span>
               </label>
@@ -1100,7 +1122,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                   value={data.firstName}
                   readOnly
                   onClick={() => copyToClipboard(data.firstName, 'firstName')}
-                  className="flex-1 px-2 py-1 border border-gray-300 text-sm font-mono bg-gray-50 cursor-pointer hover:bg-gray-100 focus:outline-none focus:border-black transition-colors"
+                  className="flex-1 px-2 py-1 border border-subtle text-sm font-mono bg-muted cursor-pointer hover:bg-ink/10 focus:outline-none focus:border-ink transition-colors"
                   placeholder="Kliknij aby skopiować"
                 />
                 <button
@@ -1109,7 +1131,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                   data-field-type="firstName"
                   data-action="refresh-field"
                   onClick={() => refreshField('firstName')}
-                  className="px-2 py-1 bg-black text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                  className="px-2 py-1 bg-ink text-inverse hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ink/50 transition-colors"
                   title="Odśwież"
                 >
                   <RefreshCw size={14} />
@@ -1123,11 +1145,11 @@ Jeśli masz pomysł na implementację, opisz go...`;
               data-testid="field-container-lastName"
               data-field-type="lastName"
               data-field-label="Nazwisko"
-              className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative"
+              className="bg-surface border-2 border-ink p-3 hover:shadow-lg transition-shadow relative"
             >
-              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
+              <label className="block text-xs font-bold text-subtle mb-1 uppercase tracking-wide">
                 Nazwisko
-                <span className="text-gray-500 font-normal normal-case ml-2">
+                <span className="text-subtle font-normal normal-case ml-2">
                   ID: input-lastName
                 </span>
               </label>
@@ -1142,7 +1164,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                   value={data.lastName}
                   readOnly
                   onClick={() => copyToClipboard(data.lastName, 'lastName')}
-                  className="flex-1 px-2 py-1 border border-gray-300 text-sm font-mono bg-gray-50 cursor-pointer hover:bg-gray-100 focus:outline-none focus:border-black transition-colors"
+                  className="flex-1 px-2 py-1 border border-subtle text-sm font-mono bg-muted cursor-pointer hover:bg-ink/10 focus:outline-none focus:border-ink transition-colors"
                   placeholder="Kliknij aby skopiować"
                 />
                 <button
@@ -1151,7 +1173,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                   data-field-type="lastName"
                   data-action="refresh-field"
                   onClick={() => refreshField('lastName')}
-                  className="px-2 py-1 bg-black text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                  className="px-2 py-1 bg-ink text-inverse hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ink/50 transition-colors"
                   title="Odśwież"
                 >
                   <RefreshCw size={14} />
@@ -1163,24 +1185,24 @@ Jeśli masz pomysł na implementację, opisz go...`;
           {/* Drugi rząd: Płeć i PESEL */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {/* Przełącznik płci */}
-            <div className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative">
-              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
+            <div className="bg-surface border-2 border-ink p-3 hover:shadow-lg transition-shadow relative">
+              <label className="block text-xs font-bold text-subtle mb-1 uppercase tracking-wide">
                 Płeć
-                <span className="text-gray-500 font-normal normal-case ml-2">
+                <span className="text-subtle font-normal normal-case ml-2">
                   ID: gender-switch
                 </span>
               </label>
               
               <div className="flex gap-2">
-                <div className="flex-1 flex bg-gray-100 border border-gray-300 rounded">
+                <div className="flex-1 flex bg-muted border border-subtle rounded">
                   <button
                     id="gender-k"
                     data-testid="gender-k"
                     onClick={() => handleGenderChange('K')}
                     className={`flex-1 px-3 py-1 text-xs font-bold transition-colors ${
                       gender === 'K' 
-                        ? 'bg-black text-white' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-ink text-inverse' 
+                        : 'bg-muted text-subtle hover:bg-ink/10'
                     }`}
                   >
                     Kobieta
@@ -1191,8 +1213,8 @@ Jeśli masz pomysł na implementację, opisz go...`;
                     onClick={() => handleGenderChange('M')}
                     className={`flex-1 px-3 py-1 text-xs font-bold transition-colors ${
                       gender === 'M' 
-                        ? 'bg-black text-white' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-ink text-inverse' 
+                        : 'bg-muted text-subtle hover:bg-ink/10'
                     }`}
                   >
                     Mężczyzna
@@ -1203,8 +1225,8 @@ Jeśli masz pomysł na implementację, opisz go...`;
                     onClick={() => handleGenderChange('K/M')}
                     className={`flex-1 px-3 py-1 text-xs font-bold transition-colors ${
                       gender === 'K/M' 
-                        ? 'bg-black text-white' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-ink text-inverse' 
+                        : 'bg-muted text-subtle hover:bg-ink/10'
                     }`}
                   >
                     K/M
@@ -1219,11 +1241,11 @@ Jeśli masz pomysł na implementację, opisz go...`;
               data-testid="field-container-pesel"
               data-field-type="pesel"
               data-field-label="PESEL"
-              className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative"
+              className="bg-surface border-2 border-ink p-3 hover:shadow-lg transition-shadow relative"
             >
-              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
+              <label className="block text-xs font-bold text-subtle mb-1 uppercase tracking-wide">
                 PESEL
-                <span className="text-gray-500 font-normal normal-case ml-2">
+                <span className="text-subtle font-normal normal-case ml-2">
                   ID: input-pesel
                 </span>
               </label>
@@ -1238,7 +1260,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                   value={data.pesel}
                   readOnly
                   onClick={() => copyToClipboard(data.pesel, 'pesel')}
-                  className="flex-1 px-2 py-1 border border-gray-300 text-sm font-mono bg-gray-50 cursor-pointer hover:bg-gray-100 focus:outline-none focus:border-black transition-colors"
+                  className="flex-1 px-2 py-1 border border-subtle text-sm font-mono bg-muted cursor-pointer hover:bg-ink/10 focus:outline-none focus:border-ink transition-colors"
                   placeholder="Kliknij aby skopiować"
                 />
                 <button
@@ -1247,7 +1269,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                   data-field-type="pesel"
                   data-action="refresh-field"
                   onClick={() => refreshField('pesel')}
-                  className="px-2 py-1 bg-black text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                  className="px-2 py-1 bg-ink text-inverse hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ink/50 transition-colors"
                   title="Odśwież"
                 >
                   <RefreshCw size={14} />
@@ -1264,11 +1286,11 @@ Jeśli masz pomysł na implementację, opisz go...`;
               data-testid="field-container-birthDate"
               data-field-type="birthDate"
               data-field-label="Data urodzenia"
-              className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative"
+              className="bg-surface border-2 border-ink p-3 hover:shadow-lg transition-shadow relative"
             >
-              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
+              <label className="block text-xs font-bold text-subtle mb-1 uppercase tracking-wide">
                 Data urodzenia
-                <span className="text-gray-500 font-normal normal-case ml-2">
+                <span className="text-subtle font-normal normal-case ml-2">
                   ID: input-birthDate
                 </span>
               </label>
@@ -1282,9 +1304,9 @@ Jeśli masz pomysł na implementację, opisz go...`;
                     type="checkbox"
                     checked={isBirthDateModified}
                     onChange={(e) => handleBirthDateModifiedChange(e.target.checked)}
-                    className="w-4 h-4 text-black border-2 border-gray-300 rounded focus:ring-black focus:ring-2"
+                    className="w-4 h-4 text-ink border-2 border-subtle rounded focus:ring-ink focus:ring-2"
                   />
-                  <label htmlFor="birthDate-modified-checkbox" className="text-xs font-bold text-gray-700">
+                  <label htmlFor="birthDate-modified-checkbox" className="text-xs font-bold text-subtle">
                     Modyfikowana
                   </label>
                 </div>
@@ -1301,8 +1323,8 @@ Jeśli masz pomysł na implementację, opisz go...`;
                   disabled={!isBirthDateModified}
                   className={`flex-1 px-2 py-1 border text-sm font-mono transition-colors ${
                     isBirthDateModified 
-                      ? 'border-gray-300 bg-white hover:bg-gray-50 focus:outline-none focus:border-black' 
-                      : 'border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed'
+                      ? 'border-subtle bg-surface hover:bg-ink/10 focus:outline-none focus:border-ink' 
+                      : 'border-subtle bg-muted text-subtle cursor-not-allowed'
                   }`}
                   max={new Date().toISOString().split('T')[0]} // Nie można wybrać daty z przyszłości
                 />
@@ -1314,7 +1336,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                   data-field-type="birthDate"
                   data-action="refresh-field"
                   onClick={() => refreshField('birthDate')}
-                  className="px-2 py-1 bg-black text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                  className="px-2 py-1 bg-ink text-inverse hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ink/50 transition-colors"
                   title="Odśwież"
                 >
                   <RefreshCw size={14} />
@@ -1328,12 +1350,12 @@ Jeśli masz pomysł na implementację, opisz go...`;
               data-testid="field-container-regon"
               data-field-type="regon"
               data-field-label="REGON"
-              className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative"
+              className="bg-surface border-2 border-ink p-3 hover:shadow-lg transition-shadow relative"
             >
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                <label className="block text-xs font-bold text-subtle uppercase tracking-wide">
                   REGON
-                  <span className="text-gray-500 font-normal normal-case ml-2">
+                  <span className="text-subtle font-normal normal-case ml-2">
                     ID: input-regon
                   </span>
                 </label>
@@ -1350,9 +1372,9 @@ Jeśli masz pomysł na implementację, opisz go...`;
                         newData.regon = generateREGON(9);
                         setData(newData);
                       }}
-                      className="w-3 h-3 accent-black border-2 border-gray-300 focus:ring-black focus:ring-1"
+                      className="w-3 h-3 accent-black border-2 border-subtle focus:ring-ink focus:ring-1"
                     />
-                    <span className="text-gray-700 font-bold">9</span>
+                    <span className="text-subtle font-bold">9</span>
                   </label>
                   <label className="flex items-center gap-1 text-xs">
                     <input
@@ -1366,9 +1388,9 @@ Jeśli masz pomysł na implementację, opisz go...`;
                         newData.regon = generateREGON(14);
                         setData(newData);
                       }}
-                      className="w-3 h-3 accent-black border-2 border-gray-300 focus:ring-black focus:ring-1"
+                      className="w-3 h-3 accent-black border-2 border-subtle focus:ring-ink focus:ring-1"
                     />
-                    <span className="text-gray-700 font-bold">14</span>
+                    <span className="text-subtle font-bold">14</span>
                   </label>
                 </div>
               </div>
@@ -1383,7 +1405,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                   value={data.regon}
                   readOnly
                   onClick={() => copyToClipboard(data.regon, 'regon')}
-                  className="flex-1 px-2 py-1 border border-gray-300 text-sm font-mono bg-gray-50 cursor-pointer hover:bg-gray-100 focus:outline-none focus:border-black transition-colors"
+                  className="flex-1 px-2 py-1 border border-subtle text-sm font-mono bg-muted cursor-pointer hover:bg-ink/10 focus:outline-none focus:border-ink transition-colors"
                   placeholder="Kliknij aby skopiować"
                 />
                 <button
@@ -1392,7 +1414,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                   data-field-type="regon"
                   data-action="refresh-field"
                   onClick={() => refreshField('regon')}
-                  className="px-2 py-1 bg-black text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                  className="px-2 py-1 bg-ink text-inverse hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ink/50 transition-colors"
                   title="Odśwież"
                 >
                   <RefreshCw size={14} />
@@ -1410,13 +1432,13 @@ Jeśli masz pomysł na implementację, opisz go...`;
                 data-testid={`field-container-${field.key}`}
                 data-field-type={field.key}
                 data-field-label={field.label}
-                className="bg-white border-2 border-black p-3 hover:shadow-lg transition-shadow relative"
+                className="bg-surface border-2 border-ink p-3 hover:shadow-lg transition-shadow relative"
               >
                 {/* Tooltip button for land register */}
                 {field.key === 'landRegisterNumber' && (
                   <button
                     onClick={() => setShowLandRegisterModal(true)}
-                    className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
+                    className="absolute top-2 right-2 hover:bg-ink/10 rounded transition-colors"
                     title="Jak obliczana jest cyfra kontrolna?"
                   >
                     <Info size={12} />
@@ -1427,7 +1449,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                 {field.key === 'mDowod' && (
                   <button
                     onClick={() => setShowMDowodModal(true)}
-                    className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
+                    className="absolute top-2 right-2 hover:bg-ink/10 rounded transition-colors"
                     title="Jak generowany jest mDowód?"
                   >
                     <Info size={12} />
@@ -1438,7 +1460,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                 {field.key === 'idNumber' && (
                   <button
                     onClick={() => setShowIDNumberModal(true)}
-                    className="absolute top-2 right-2 hover:bg-gray-200 rounded transition-colors"
+                    className="absolute top-2 right-2 hover:bg-ink/10 rounded transition-colors"
                     title="Jak generowany jest numer dowodu osobistego? (3 litery + cyfra kontrolna + 5 cyfr)"
                   >
                     <Info size={12} />
@@ -1446,9 +1468,9 @@ Jeśli masz pomysł na implementację, opisz go...`;
                 )}
 
                 
-                <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
+                <label className="block text-xs font-bold text-subtle mb-1 uppercase tracking-wide">
                   {field.label}
-                  <span className="text-gray-500 font-normal normal-case ml-2">
+                  <span className="text-subtle font-normal normal-case ml-2">
                     ID: input-{field.key}
                   </span>
                 </label>
@@ -1463,7 +1485,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                     value={data[field.key]}
                     readOnly
                     onClick={() => copyToClipboard(data[field.key], field.key)}
-                    className="flex-1 px-2 py-1 border border-gray-300 text-sm font-mono bg-gray-50 cursor-pointer hover:bg-gray-100 focus:outline-none focus:border-black transition-colors"
+                    className="flex-1 px-2 py-1 border border-subtle text-sm font-mono bg-muted cursor-pointer hover:bg-ink/10 focus:outline-none focus:border-ink transition-colors"
                     placeholder="Kliknij aby skopiować"
                   />
                   <button
@@ -1472,7 +1494,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                     data-field-type={field.key}
                     data-action="refresh-field"
                     onClick={() => refreshField(field.key)}
-                    className="px-2 py-1 bg-black text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                    className="px-2 py-1 bg-ink text-inverse hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ink/50 transition-colors"
                     title="Odśwież"
                   >
                     <RefreshCw size={14} />
@@ -1490,7 +1512,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
             data-testid="refresh-all-button"
             data-action="refresh-all"
             onClick={() => setData(generateAllData())}
-            className="px-6 py-2 bg-black text-white font-bold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+            className="px-6 py-2 bg-ink text-inverse font-bold hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ink/50 transition-colors"
           >
             Odśwież wszystkie dane
           </button>
@@ -1499,8 +1521,8 @@ Jeśli masz pomysł na implementację, opisz go...`;
 
       {/* Toast notification */}
       {copiedField && (
-        <div id="toast-notification" data-testid="toast-notification" className="fixed top-4 right-4 z-50">
-          <div className="bg-black text-white px-4 py-2 border-2 border-black shadow-lg">
+        <div id="toast-notification" data-testid="toast-notification" className="fixed top-16 right-3 z-50">
+          <div className="bg-ink text-inverse px-4 py-2 border-2 border-ink shadow-lg">
             <div className="flex items-center gap-2">
               <Copy size={16} />
               <span className="font-bold text-sm">Skopiowano!</span>
@@ -1511,16 +1533,16 @@ Jeśli masz pomysł na implementację, opisz go...`;
 
       {/* Help Modal */}
       {showHelpModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white border-2 border-black max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border-2 border-ink max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b-2 border-black">
-              <h2 className="text-2xl font-black text-black">🤖 Instrukcje Automatyzacji</h2>
+            <div className="flex items-center justify-between p-4 border-b-2 border-ink">
+              <h2 className="text-2xl font-black text-ink">🤖 Instrukcje Automatyzacji</h2>
               <button
                 id="close-help-modal"
                 data-testid="close-help-modal"
                 onClick={() => setShowHelpModal(false)}
-                className="p-2 hover:bg-gray-100 transition-colors"
+                className="p-2 hover:bg-ink/10 transition-colors"
               >
                 <X size={24} />
               </button>
@@ -1529,87 +1551,87 @@ Jeśli masz pomysł na implementację, opisz go...`;
             {/* Modal Content */}
             <div className="p-6 space-y-6">
               {/* Introduction */}
-              <div className="bg-gray-50 p-4 border-2 border-black">
-                <h3 className="text-lg font-bold mb-2 text-black">🎯 Każde pole ma unikalny identyfikator!</h3>
-                <p className="text-sm text-gray-700">
-                  Wszystkie pola mają unikalne ID i atrybuty <code className="bg-white border border-black px-1 font-mono">data-testid</code> 
+              <div className="bg-muted p-4 border-2 border-ink">
+                <h3 className="text-lg font-bold mb-2 text-ink">🎯 Każde pole ma unikalny identyfikator!</h3>
+                <p className="text-sm text-subtle">
+                  Wszystkie pola mają unikalne ID i atrybuty <code className="bg-surface border border-ink px-1 font-mono">data-testid</code> 
                   które ułatwiają automatyzację testów z Selenium, Playwright, Cypress i innymi narzędziami.
                 </p>
               </div>
 
               {/* Field IDs */}
               <div>
-                <h3 className="text-lg font-bold mb-3 text-black">📋 Dostępne identyfikatory pól:</h3>
+                <h3 className="text-lg font-bold mb-3 text-ink">📋 Dostępne identyfikatory pól:</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">Imię:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-firstName</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">Imię:</strong> <code className="bg-muted border border-ink px-1 font-mono">input-firstName</code>
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">Nazwisko:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-lastName</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">Nazwisko:</strong> <code className="bg-muted border border-ink px-1 font-mono">input-lastName</code>
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">PESEL:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-pesel</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">PESEL:</strong> <code className="bg-muted border border-ink px-1 font-mono">input-pesel</code>
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">REGON:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-regon</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">REGON:</strong> <code className="bg-muted border border-ink px-1 font-mono">input-regon</code>
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">NIP:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-nip</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">NIP:</strong> <code className="bg-muted border border-ink px-1 font-mono">input-nip</code>
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">NRB:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-nrb</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">NRB:</strong> <code className="bg-muted border border-ink px-1 font-mono">input-nrb</code>
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">Dowód (ABC012345):</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-idNumber</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">Dowód (ABC012345):</strong> <code className="bg-muted border border-ink px-1 font-mono">input-idNumber</code>
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">mDowód:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-mDowod</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">mDowód:</strong> <code className="bg-muted border border-ink px-1 font-mono">input-mDowod</code>
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">Paszport:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-passportNumber</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">Paszport:</strong> <code className="bg-muted border border-ink px-1 font-mono">input-passportNumber</code>
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">Księga:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-landRegisterNumber</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">Księga:</strong> <code className="bg-muted border border-ink px-1 font-mono">input-landRegisterNumber</code>
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">SWIFT:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-swift</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">SWIFT:</strong> <code className="bg-muted border border-ink px-1 font-mono">input-swift</code>
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
+                  <div className="bg-surface p-2 border-2 border-ink">
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">GUID:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-guid</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">GUID:</strong> <code className="bg-muted border border-ink px-1 font-mono">input-guid</code>
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">E-doręczenia:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">input-edoreczenie</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">E-doręczenia:</strong> <code className="bg-muted border border-ink px-1 font-mono">input-edoreczenie</code>
                   </div>
                 </div>
               </div>
 
               {/* Button IDs */}
               <div>
-                <h3 className="text-lg font-bold mb-3 text-black">🔄 Przyciski odświeżania:</h3>
+                <h3 className="text-lg font-bold mb-3 text-ink">🔄 Przyciski odświeżania:</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">Odśwież pole:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">refresh-{'{fieldName}'}</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">Odśwież pole:</strong> <code className="bg-muted border border-ink px-1 font-mono">refresh-{'{fieldName}'}</code>
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
-                    <strong className="text-black">Odśwież wszystkie:</strong> <code className="bg-gray-100 border border-black px-1 font-mono">refresh-all-button</code>
+                  <div className="bg-surface p-2 border-2 border-ink">
+                    <strong className="text-ink">Odśwież wszystkie:</strong> <code className="bg-muted border border-ink px-1 font-mono">refresh-all-button</code>
                   </div>
                 </div>
               </div>
 
               {/* Code Examples with Tabs */}
               <div>
-                <h3 className="text-lg font-bold mb-3 text-black">💻 Przykłady kodu:</h3>
+                <h3 className="text-lg font-bold mb-3 text-ink">💻 Przykłady kodu:</h3>
                 
                 {/* Tab Navigation */}
-                <div className="flex border-2 border-black mb-0">
+                <div className="flex border-2 border-ink mb-0">
                   <button
                     onClick={() => setActiveTab('python')}
-                    className={`px-4 py-2 font-bold text-sm border-r-2 border-black ${
+                    className={`px-4 py-2 font-bold text-sm border-r-2 border-ink ${
                       activeTab === 'python' 
-                        ? 'bg-black text-white' 
-                        : 'bg-white text-black hover:bg-gray-100'
+                        ? 'bg-ink text-inverse' 
+                        : 'bg-surface text-ink hover:bg-ink/10'
                     }`}
                   >
                     🐍 Python (Selenium)
@@ -1618,8 +1640,8 @@ Jeśli masz pomysł na implementację, opisz go...`;
                     onClick={() => setActiveTab('javascript')}
                     className={`px-4 py-2 font-bold text-sm ${
                       activeTab === 'javascript' 
-                        ? 'bg-black text-white' 
-                        : 'bg-white text-black hover:bg-gray-100'
+                        ? 'bg-ink text-inverse' 
+                        : 'bg-surface text-ink hover:bg-ink/10'
                     }`}
                   >
                     🟨 JavaScript (Playwright)
@@ -1627,7 +1649,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
                 </div>
 
                 {/* Tab Content */}
-                <div className="bg-black text-white border-2 border-black border-t-0 relative">
+                <div className="bg-neutral-900 text-neutral-100 border-2 border-neutral-400 border-t-0 relative">
                   {/* Copy Button */}
                   <button
                     onClick={() => {
@@ -1636,7 +1658,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 driver = webdriver.Chrome()
-driver.get("https://dane-testowe.netlify.app/")
+driver.get("https://dane-testowe.com/")
 
 # Pobieranie wartości PESEL
 pesel = driver.find_element(By.ID, "input-pesel")
@@ -1660,7 +1682,7 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch();
   const page = await browser.newPage();
   
-  await page.goto('https://dane-testowe.netlify.app/');
+  await page.goto('https://dane-testowe.com/');
   
   // Pobieranie wartości PESEL
   const peselValue = await page.inputValue('#input-pesel');
@@ -1681,7 +1703,7 @@ const { chromium } = require('playwright');
 
                       copyCode(activeTab === 'python' ? pythonCode : jsCode);
                     }}
-                    className="absolute top-2 right-2 p-2 bg-white text-black hover:bg-gray-200 transition-colors"
+                    className="absolute top-2 right-2 p-2 bg-surface text-ink hover:bg-ink/10 transition-colors"
                     title="Skopiuj kod"
                   >
                     <Copy size={16} />
@@ -1695,7 +1717,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 driver = webdriver.Chrome()
-driver.get("https://dane-testowe.netlify.app/")
+driver.get("https://dane-testowe.com/")
 
 # Pobieranie wartości PESEL
 pesel = driver.find_element(By.ID, "input-pesel")
@@ -1719,7 +1741,7 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch();
   const page = await browser.newPage();
   
-  await page.goto('https://dane-testowe.netlify.app/');
+  await page.goto('https://dane-testowe.com/');
   
   // Pobieranie wartości PESEL
   const peselValue = await page.inputValue('#input-pesel');
@@ -1743,14 +1765,14 @@ const { chromium } = require('playwright');
               </div>
 
               {/* Quick Tips */}
-              <div className="bg-gray-50 p-4 border-2 border-black">
-                <h3 className="text-lg font-bold mb-2 text-black">💡 Szybkie wskazówki:</h3>
-                <ul className="text-sm space-y-1 text-gray-700">
-                  <li>• Każde pole ma zarówno <code className="bg-white border border-black px-1 font-mono">id</code> jak i <code className="bg-white border border-black px-1 font-mono">data-testid</code></li>
-                  <li>• Użyj <code className="bg-white border border-black px-1 font-mono">By.ID</code> lub <code className="bg-white border border-black px-1 font-mono">By.CSS_SELECTOR</code> w Selenium</li>
+              <div className="bg-muted p-4 border-2 border-ink">
+                <h3 className="text-lg font-bold mb-2 text-ink">💡 Szybkie wskazówki:</h3>
+                <ul className="text-sm space-y-1 text-subtle">
+                  <li>• Każde pole ma zarówno <code className="bg-surface border border-ink px-1 font-mono">id</code> jak i <code className="bg-surface border border-ink px-1 font-mono">data-testid</code></li>
+                  <li>• Użyj <code className="bg-surface border border-ink px-1 font-mono">By.ID</code> lub <code className="bg-surface border border-ink px-1 font-mono">By.CSS_SELECTOR</code> w Selenium</li>
                   <li>• Wartości są automatycznie generowane przy każdym odświeżeniu</li>
-                  <li>• Aplikacja dostępna na <code className="bg-white border border-black px-1 font-mono">https://dane-testowe.netlify.app/</code></li>
-                  <li>• Pełna dokumentacja w pliku <code className="bg-white border border-black px-1 font-mono">TESTING.md</code></li>
+                  <li>• Aplikacja dostępna na <code className="bg-surface border border-ink px-1 font-mono">https://dane-testowe.com/</code></li>
+                  <li>• Pełna dokumentacja w pliku <code className="bg-surface border border-ink px-1 font-mono">TESTING.md</code></li>
                 </ul>
               </div>
 
@@ -1761,14 +1783,14 @@ const { chromium } = require('playwright');
 
       {/* Land Register Algorithm Modal */}
       {showLandRegisterModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white border-2 border-black max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border-2 border-ink max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b-2 border-black">
-              <h2 className="text-2xl font-black text-black">🏛️ Algorytm Księgi Wieczystej</h2>
+            <div className="flex items-center justify-between p-4 border-b-2 border-ink">
+              <h2 className="text-2xl font-black text-ink">🏛️ Algorytm Księgi Wieczystej</h2>
               <button
                 onClick={() => setShowLandRegisterModal(false)}
-                className="p-2 hover:bg-gray-100 transition-colors"
+                className="p-2 hover:bg-ink/10 transition-colors"
               >
                 <X size={24} />
               </button>
@@ -1777,12 +1799,12 @@ const { chromium } = require('playwright');
             {/* Modal Content */}
             <div className="p-6 space-y-6">
               {/* Introduction */}
-              <div className="bg-gray-50 p-4 border-2 border-black">
-                <h3 className="text-lg font-bold mb-2 text-black">📋 Format numeru księgi wieczystej:</h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  <code className="bg-white border border-black px-1 font-mono">XXXX/XXXXXXXX/X</code>
+              <div className="bg-muted p-4 border-2 border-ink">
+                <h3 className="text-lg font-bold mb-2 text-ink">📋 Format numeru księgi wieczystej:</h3>
+                <p className="text-sm text-subtle mb-2">
+                  <code className="bg-surface border border-ink px-1 font-mono">XXXX/XXXXXXXX/X</code>
                 </p>
-                <ul className="text-sm text-gray-700 space-y-1">
+                <ul className="text-sm text-subtle space-y-1">
                   <li>• <strong>XXXX</strong> - kod wydziału sądu (np. WA1N)</li>
                   <li>• <strong>XXXXXXXX</strong> - 8-cyfrowy numer księgi</li>
                   <li>• <strong>X</strong> - cyfra kontrolna (0-9)</li>
@@ -1791,33 +1813,33 @@ const { chromium } = require('playwright');
 
               {/* Algorithm Steps */}
               <div>
-                <h3 className="text-lg font-bold mb-3 text-black">🔢 Kroki obliczania cyfry kontrolnej:</h3>
+                <h3 className="text-lg font-bold mb-3 text-ink">🔢 Kroki obliczania cyfry kontrolnej:</h3>
                 <div className="space-y-4">
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">1. Przypisanie wartości znakom</h4>
+                  <div className="bg-surface p-3 border-2 border-ink">
+                    <h4 className="font-bold text-ink mb-2">1. Przypisanie wartości znakom</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                       <div><strong>Cyfry:</strong> 0=0, 1=1, 2=2, ..., 9=9</div>
                       <div><strong>Litery:</strong> X=10, A=11, B=12, ..., Z=33</div>
                     </div>
                   </div>
                   
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">2. Wagi dla kolejnych znaków</h4>
-                    <p className="text-sm text-gray-700">
-                      <code className="bg-gray-100 border border-black px-1 font-mono">1 3 7 1 3 7 1 3 7 1 3 7</code>
+                  <div className="bg-surface p-3 border-2 border-ink">
+                    <h4 className="font-bold text-ink mb-2">2. Wagi dla kolejnych znaków</h4>
+                    <p className="text-sm text-subtle">
+                      <code className="bg-muted border border-ink px-1 font-mono">1 3 7 1 3 7 1 3 7 1 3 7</code>
                     </p>
                   </div>
                   
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">3. Obliczenia</h4>
-                    <p className="text-sm text-gray-700">
+                  <div className="bg-surface p-3 border-2 border-ink">
+                    <h4 className="font-bold text-ink mb-2">3. Obliczenia</h4>
+                    <p className="text-sm text-subtle">
                       Każdy znak × jego waga, następnie suma wszystkich iloczynów
                     </p>
                   </div>
                   
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">4. Cyfra kontrolna</h4>
-                    <p className="text-sm text-gray-700">
+                  <div className="bg-surface p-3 border-2 border-ink">
+                    <h4 className="font-bold text-ink mb-2">4. Cyfra kontrolna</h4>
+                    <p className="text-sm text-subtle">
                       Reszta z dzielenia sumy przez 10
                     </p>
                   </div>
@@ -1826,8 +1848,8 @@ const { chromium } = require('playwright');
 
               {/* Example */}
               <div>
-                <h3 className="text-lg font-bold mb-3 text-black">📝 Przykład: WA1N/22092490/7</h3>
-                <div className="bg-black text-white p-4 border-2 border-black text-sm font-mono overflow-x-auto">
+                <h3 className="text-lg font-bold mb-3 text-ink">📝 Przykład: WA1N/22092490/7</h3>
+                <div className="bg-neutral-900 text-neutral-100 p-4 border-2 border-neutral-400 text-sm font-mono overflow-x-auto">
                   <pre>{`WA1N22092490
 
 W(31) × 1 = 31
@@ -1850,25 +1872,25 @@ Cyfra kontrolna: 187 % 10 = 7`}</pre>
 
               {/* Character Values Table */}
               <div>
-                <h3 className="text-lg font-bold mb-3 text-black">📊 Tabela wartości znaków:</h3>
+                <h3 className="text-lg font-bold mb-3 text-ink">📊 Tabela wartości znaków:</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                  <div className="bg-white p-2 border-2 border-black">
+                  <div className="bg-surface p-2 border-2 border-ink">
                     <strong>Cyfry:</strong><br/>
                     0=0, 1=1, 2=2, 3=3, 4=4<br/>
                     5=5, 6=6, 7=7, 8=8, 9=9
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
+                  <div className="bg-surface p-2 border-2 border-ink">
                     <strong>Litery A-F:</strong><br/>
                     X=10, A=11, B=12, C=13<br/>
                     D=14, E=15, F=16
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
+                  <div className="bg-surface p-2 border-2 border-ink">
                     <strong>Litery G-P:</strong><br/>
                     G=17, H=18, I=19, J=20<br/>
                     K=21, L=22, M=23, N=24<br/>
                     O=25, P=26
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
+                  <div className="bg-surface p-2 border-2 border-ink">
                     <strong>Litery R-Z:</strong><br/>
                     R=27, S=28, T=29, U=30<br/>
                     W=31, Y=32, Z=33
@@ -1877,9 +1899,9 @@ Cyfra kontrolna: 187 % 10 = 7`}</pre>
               </div>
 
               {/* Official Source */}
-              <div className="bg-yellow-50 p-4 border-2 border-yellow-300">
-                <h3 className="text-lg font-bold mb-2 text-black">ℹ️ Źródło:</h3>
-                <p className="text-sm text-gray-700">
+              <div className="bg-yellow-50 dark:bg-yellow-950/40 p-4 border-2 border-yellow-300 dark:border-yellow-700">
+                <h3 className="text-lg font-bold mb-2 text-ink">ℹ️ Źródło:</h3>
+                <p className="text-sm text-subtle">
                   Algorytm zgodny z oficjalną specyfikacją Ministerstwa Sprawiedliwości.
                   Używany w systemie EKW (Elektroniczne Księgi Wieczyste).
                 </p>
@@ -1891,14 +1913,14 @@ Cyfra kontrolna: 187 % 10 = 7`}</pre>
 
       {/* mDowód Algorithm Modal */}
       {showMDowodModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white border-2 border-black max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border-2 border-ink max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b-2 border-black">
-              <h2 className="text-2xl font-black text-black">📱 Algorytm mDowód</h2>
+            <div className="flex items-center justify-between p-4 border-b-2 border-ink">
+              <h2 className="text-2xl font-black text-ink">📱 Algorytm mDowód</h2>
               <button
                 onClick={() => setShowMDowodModal(false)}
-                className="p-2 hover:bg-gray-100 transition-colors"
+                className="p-2 hover:bg-ink/10 transition-colors"
               >
                 <X size={24} />
               </button>
@@ -1907,12 +1929,12 @@ Cyfra kontrolna: 187 % 10 = 7`}</pre>
             {/* Modal Content */}
             <div className="p-6 space-y-6">
               {/* Introduction */}
-              <div className="bg-gray-50 p-4 border-2 border-black">
-                <h3 className="text-lg font-bold mb-2 text-black">📋 Format numeru mDowód:</h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  <code className="bg-white border border-black px-1 font-mono">MAXXYYYY</code>
+              <div className="bg-muted p-4 border-2 border-ink">
+                <h3 className="text-lg font-bold mb-2 text-ink">📋 Format numeru mDowód:</h3>
+                <p className="text-sm text-subtle mb-2">
+                  <code className="bg-surface border border-ink px-1 font-mono">MAXXYYYY</code>
                 </p>
-                <ul className="text-sm text-gray-700 space-y-1">
+                <ul className="text-sm text-subtle space-y-1">
                   <li>• <strong>MA</strong> - stały prefiks</li>
                   <li>• <strong>XX</strong> - 2 litery serii dowodu</li>
                   <li>• <strong>Y</strong> - cyfra kontrolna (pozycja 4)</li>
@@ -1922,42 +1944,42 @@ Cyfra kontrolna: 187 % 10 = 7`}</pre>
 
               {/* Algorithm Steps */}
               <div>
-                <h3 className="text-lg font-bold mb-3 text-black">🔢 Kroki generowania:</h3>
+                <h3 className="text-lg font-bold mb-3 text-ink">🔢 Kroki generowania:</h3>
                 <div className="space-y-4">
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">1. Generowanie prefiksu</h4>
-                    <p className="text-sm text-gray-700">
-                      Zawsze zaczyna się od <code className="bg-gray-100 border border-black px-1 font-mono">MA</code>
+                  <div className="bg-surface p-3 border-2 border-ink">
+                    <h4 className="font-bold text-ink mb-2">1. Generowanie prefiksu</h4>
+                    <p className="text-sm text-subtle">
+                      Zawsze zaczyna się od <code className="bg-muted border border-ink px-1 font-mono">MA</code>
                     </p>
                   </div>
                   
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">2. Generowanie liter</h4>
-                    <p className="text-sm text-gray-700">
-                      2 losowe litery z alfabetu bez O i Q: <code className="bg-gray-100 border border-black px-1 font-mono">ABCDEFGHIJKLMNPRSTUVWXYZ</code>
+                  <div className="bg-surface p-3 border-2 border-ink">
+                    <h4 className="font-bold text-ink mb-2">2. Generowanie liter</h4>
+                    <p className="text-sm text-subtle">
+                      2 losowe litery z alfabetu bez O i Q: <code className="bg-muted border border-ink px-1 font-mono">ABCDEFGHIJKLMNPRSTUVWXYZ</code>
                     </p>
                   </div>
                   
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">3. Generowanie cyfr</h4>
-                    <p className="text-sm text-gray-700">
+                  <div className="bg-surface p-3 border-2 border-ink">
+                    <h4 className="font-bold text-ink mb-2">3. Generowanie cyfr</h4>
+                    <p className="text-sm text-subtle">
                       4 losowe cyfry (1000-9999)
                     </p>
                   </div>
                   
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">4. Obliczanie cyfry kontrolnej</h4>
-                    <p className="text-sm text-gray-700">
-                      Wagi: <code className="bg-gray-100 border border-black px-1 font-mono">[7, 3, 1, 7, 3, 1, 7, 3]</code>
+                  <div className="bg-surface p-3 border-2 border-ink">
+                    <h4 className="font-bold text-ink mb-2">4. Obliczanie cyfry kontrolnej</h4>
+                    <p className="text-sm text-subtle">
+                      Wagi: <code className="bg-muted border border-ink px-1 font-mono">[7, 3, 1, 7, 3, 1, 7, 3]</code>
                     </p>
-                    <p className="text-sm text-gray-700">
+                    <p className="text-sm text-subtle">
                       Suma z pierwszych 8 znaków modulo 10
                     </p>
                   </div>
                   
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">5. Wstawienie cyfry kontrolnej</h4>
-                    <p className="text-sm text-gray-700">
+                  <div className="bg-surface p-3 border-2 border-ink">
+                    <h4 className="font-bold text-ink mb-2">5. Wstawienie cyfry kontrolnej</h4>
+                    <p className="text-sm text-subtle">
                       Cyfra kontrolna wstawiana na pozycję 4 (po MA + 2 litery)
                     </p>
                   </div>
@@ -1966,8 +1988,8 @@ Cyfra kontrolna: 187 % 10 = 7`}</pre>
 
               {/* Example */}
               <div>
-                <h3 className="text-lg font-bold mb-3 text-black">📝 Przykład: MAAAB1234</h3>
-                <div className="bg-black text-white p-4 border-2 border-black text-sm font-mono overflow-x-auto">
+                <h3 className="text-lg font-bold mb-3 text-ink">📝 Przykład: MAAAB1234</h3>
+                <div className="bg-neutral-900 text-neutral-100 p-4 border-2 border-neutral-400 text-sm font-mono overflow-x-auto">
                   <pre>{`MAAAB1234
 
 M(22) × 7 = 154
@@ -1987,21 +2009,21 @@ Finalny numer: MAAAB12341`}</pre>
 
               {/* Character Values */}
               <div>
-                <h3 className="text-lg font-bold mb-3 text-black">📊 Wartości znaków:</h3>
+                <h3 className="text-lg font-bold mb-3 text-ink">📊 Wartości znaków:</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                  <div className="bg-white p-2 border-2 border-black">
+                  <div className="bg-surface p-2 border-2 border-ink">
                     <strong>Cyfry:</strong><br/>
                     0=0, 1=1, 2=2, 3=3, 4=4<br/>
                     5=5, 6=6, 7=7, 8=8, 9=9
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
+                  <div className="bg-surface p-2 border-2 border-ink">
                     <strong>Litery A-M:</strong><br/>
                     A=10, B=11, C=12, D=13<br/>
                     E=15, F=16, G=17, H=18<br/>
                     I=19, J=20, K=21, L=22<br/>
                     M=23
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
+                  <div className="bg-surface p-2 border-2 border-ink">
                     <strong>Litery N-Z:</strong><br/>
                     N=24, P=26, R=27, S=28<br/>
                     T=29, U=30, V=31, W=32<br/>
@@ -2011,10 +2033,10 @@ Finalny numer: MAAAB12341`}</pre>
               </div>
 
               {/* Official Source */}
-              <div className="bg-blue-50 p-4 border-2 border-blue-300">
-                <h3 className="text-lg font-bold mb-2 text-black">ℹ️ Źródło:</h3>
-                <p className="text-sm text-gray-700">
-                  Algorytm zgodny z walidatorem <a href="https://romek.info/ut/js-pesel.html" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">romek.info</a>.
+              <div className="bg-blue-50 dark:bg-blue-950/40 p-4 border-2 border-blue-300 dark:border-blue-700">
+                <h3 className="text-lg font-bold mb-2 text-ink">ℹ️ Źródło:</h3>
+                <p className="text-sm text-subtle">
+                  Algorytm zgodny z walidatorem <a href="https://romek.info/ut/js-pesel.html" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline">romek.info</a>.
                   Używany w systemie mObywatel dla generowania numerów dowodów osobistych.
                 </p>
               </div>
@@ -2025,14 +2047,14 @@ Finalny numer: MAAAB12341`}</pre>
 
       {/* ID Number Algorithm Modal */}
       {showIDNumberModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white border-2 border-black max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border-2 border-ink max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b-2 border-black">
-              <h2 className="text-2xl font-black text-black">🆔 Algorytm Numeru Dowodu Osobistego</h2>
+            <div className="flex items-center justify-between p-4 border-b-2 border-ink">
+              <h2 className="text-2xl font-black text-ink">🆔 Algorytm Numeru Dowodu Osobistego</h2>
               <button
                 onClick={() => setShowIDNumberModal(false)}
-                className="p-2 hover:bg-gray-100 transition-colors"
+                className="p-2 hover:bg-ink/10 transition-colors"
               >
                 <X size={24} />
               </button>
@@ -2041,12 +2063,12 @@ Finalny numer: MAAAB12341`}</pre>
             {/* Modal Content */}
             <div className="p-6 space-y-6">
               {/* Introduction */}
-              <div className="bg-gray-50 p-4 border-2 border-black">
-                <h3 className="text-lg font-bold mb-2 text-black">📋 Struktura numeru dowodu osobistego:</h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  <code className="bg-white border border-black px-1 font-mono">3_LITERY + CYFRA_KONTROLNA + 5_CYFR</code>
+              <div className="bg-muted p-4 border-2 border-ink">
+                <h3 className="text-lg font-bold mb-2 text-ink">📋 Struktura numeru dowodu osobistego:</h3>
+                <p className="text-sm text-subtle mb-2">
+                  <code className="bg-surface border border-ink px-1 font-mono">3_LITERY + CYFRA_KONTROLNA + 5_CYFR</code>
                 </p>
-                <ul className="text-sm text-gray-700 space-y-1">
+                <ul className="text-sm text-subtle space-y-1">
                   <li>• <strong>3_LITERY</strong> - trzy losowe litery (pełny alfabet z O i Q)</li>
                   <li>• <strong>CYFRA_KONTROLNA</strong> - obliczana cyfra kontrolna</li>
                   <li>• <strong>5_CYFR</strong> - pięciocyfrowy numer identyfikacyjny</li>
@@ -2055,35 +2077,35 @@ Finalny numer: MAAAB12341`}</pre>
 
               {/* Algorithm Steps */}
               <div>
-                <h3 className="text-lg font-bold mb-3 text-black">🔢 Kroki generowania:</h3>
+                <h3 className="text-lg font-bold mb-3 text-ink">🔢 Kroki generowania:</h3>
                 <div className="space-y-4">
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">1. Generowanie liter</h4>
-                    <p className="text-sm text-gray-700">
-                      3 losowe litery z pełnego alfabetu: <code className="bg-gray-100 border border-black px-1 font-mono">ABCDEFGHIJKLMNOPQRSTUVWXYZ</code>
+                  <div className="bg-surface p-3 border-2 border-ink">
+                    <h4 className="font-bold text-ink mb-2">1. Generowanie liter</h4>
+                    <p className="text-sm text-subtle">
+                      3 losowe litery z pełnego alfabetu: <code className="bg-muted border border-ink px-1 font-mono">ABCDEFGHIJKLMNOPQRSTUVWXYZ</code>
                     </p>
                   </div>
                   
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">2. Generowanie numeru</h4>
-                    <p className="text-sm text-gray-700">
+                  <div className="bg-surface p-3 border-2 border-ink">
+                    <h4 className="font-bold text-ink mb-2">2. Generowanie numeru</h4>
+                    <p className="text-sm text-subtle">
                       5 losowych cyfr (10000-99999)
                     </p>
                   </div>
                   
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">3. Obliczanie cyfry kontrolnej</h4>
-                    <p className="text-sm text-gray-700">
-                      Wagi: <code className="bg-gray-100 border border-black px-1 font-mono">[7, 3, 1, 7, 3, 1, 7, 3]</code>
+                  <div className="bg-surface p-3 border-2 border-ink">
+                    <h4 className="font-bold text-ink mb-2">3. Obliczanie cyfry kontrolnej</h4>
+                    <p className="text-sm text-subtle">
+                      Wagi: <code className="bg-muted border border-ink px-1 font-mono">[7, 3, 1, 7, 3, 1, 7, 3]</code>
                     </p>
-                    <p className="text-sm text-gray-700">
+                    <p className="text-sm text-subtle">
                       Suma z 8 znaków (3 litery + 5 cyfr) modulo 10
                     </p>
                   </div>
                   
-                  <div className="bg-white p-3 border-2 border-black">
-                    <h4 className="font-bold text-black mb-2">4. Wstawienie cyfry kontrolnej</h4>
-                    <p className="text-sm text-gray-700">
+                  <div className="bg-surface p-3 border-2 border-ink">
+                    <h4 className="font-bold text-ink mb-2">4. Wstawienie cyfry kontrolnej</h4>
+                    <p className="text-sm text-subtle">
                       Cyfra kontrolna wstawiana na pozycję 3 (po 3 literach)
                     </p>
                   </div>
@@ -2092,8 +2114,8 @@ Finalny numer: MAAAB12341`}</pre>
 
               {/* Example */}
               <div>
-                <h3 className="text-lg font-bold mb-3 text-black">📝 Przykład: ABC12345</h3>
-                <div className="bg-black text-white p-4 border-2 border-black text-sm font-mono overflow-x-auto">
+                <h3 className="text-lg font-bold mb-3 text-ink">📝 Przykład: ABC12345</h3>
+                <div className="bg-neutral-900 text-neutral-100 p-4 border-2 border-neutral-400 text-sm font-mono overflow-x-auto">
                   <pre>{`ABC12345
 
 A(10) × 7 = 70
@@ -2113,21 +2135,21 @@ Finalny numer: ABC412345`}</pre>
 
               {/* Character Values */}
               <div>
-                <h3 className="text-lg font-bold mb-3 text-black">📊 Wartości znaków:</h3>
+                <h3 className="text-lg font-bold mb-3 text-ink">📊 Wartości znaków:</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                  <div className="bg-white p-2 border-2 border-black">
+                  <div className="bg-surface p-2 border-2 border-ink">
                     <strong>Cyfry:</strong><br/>
                     0=0, 1=1, 2=2, 3=3, 4=4<br/>
                     5=5, 6=6, 7=7, 8=8, 9=9
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
+                  <div className="bg-surface p-2 border-2 border-ink">
                     <strong>Litery A-M:</strong><br/>
                     A=10, B=11, C=12, D=13<br/>
                     E=14, F=15, G=16, H=17<br/>
                     I=18, J=19, K=20, L=21<br/>
                     M=22
                   </div>
-                  <div className="bg-white p-2 border-2 border-black">
+                  <div className="bg-surface p-2 border-2 border-ink">
                     <strong>Litery N-Z:</strong><br/>
                     N=23, O=24, P=25, Q=26<br/>
                     R=27, S=28, T=29, U=30<br/>
@@ -2137,10 +2159,10 @@ Finalny numer: ABC412345`}</pre>
               </div>
 
               {/* Official Source */}
-              <div className="bg-green-50 p-4 border-2 border-green-300">
-                <h3 className="text-lg font-bold mb-2 text-black">ℹ️ Źródło walidatora:</h3>
-                <p className="text-sm text-gray-700">
-                  Algorytm zgodny z walidatorem <a href="https://testerzy.pl/baza-wiedzy/narzedzia-online/walidatory" target="_blank" rel="noopener noreferrer" className="text-green-600 underline">testerzy.pl</a>.
+              <div className="bg-green-50 dark:bg-green-950/40 p-4 border-2 border-green-300 dark:border-green-700">
+                <h3 className="text-lg font-bold mb-2 text-ink">ℹ️ Źródło walidatora:</h3>
+                <p className="text-sm text-subtle">
+                  Algorytm zgodny z walidatorem <a href="https://testerzy.pl/baza-wiedzy/narzedzia-online/walidatory" target="_blank" rel="noopener noreferrer" className="text-green-600 dark:text-green-400 underline">testerzy.pl</a>.
                   Format: 3 litery + cyfra kontrolna + 5 cyfr. Wartości liter: A=10, B=11, ..., Z=35.
                 </p>
               </div>
@@ -2151,15 +2173,15 @@ Finalny numer: ABC412345`}</pre>
 
 
       {/* Footer */}
-      <footer className="bg-white border-t-2 border-black mt-8">
+      <footer className="bg-surface border-t-2 border-ink mt-8">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
-            <span className="text-gray-700 text-sm">Stworzone przez:</span>
+            <span className="text-subtle text-sm">Stworzone przez:</span>
             <a
               href="https://github.com/Grandpa1001"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-3 py-1 bg-black text-white font-bold text-sm hover:bg-gray-800 transition-colors"
+              className="flex items-center gap-2 px-3 py-1 bg-ink text-inverse font-bold text-sm hover:opacity-80 transition-colors"
             >
               <Github size={16} />
               <span>Grandpa1001</span>
@@ -2168,7 +2190,7 @@ Finalny numer: ABC412345`}</pre>
               href="https://kamil-bandzwolek.pl/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-3 py-1 bg-black text-white font-bold text-sm hover:bg-gray-800 transition-colors"
+              className="flex items-center gap-2 px-3 py-1 bg-ink text-inverse font-bold text-sm hover:opacity-80 transition-colors"
             >
               <img
                 src="/WasiHead.png"
@@ -2178,7 +2200,7 @@ Finalny numer: ABC412345`}</pre>
               <span>Website</span>
             </a>
           </div>
-          <p className="text-center text-gray-500 mt-2 text-xs">
+          <p className="text-center text-subtle mt-2 text-xs">
             Dane generowane losowo dla celów testowych
           </p>
         </div>
@@ -2191,7 +2213,7 @@ Finalny numer: ABC412345`}</pre>
             {/* Main floating button */}
             <button
               onClick={() => setIsFeedbackMenuOpen(prev => !prev)}
-              className={`w-14 h-14 bg-black text-white rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-300 flex items-center justify-center ${isFeedbackMenuOpen ? 'scale-110' : 'hover:bg-gray-800'}`}
+              className={`w-14 h-14 bg-ink text-inverse rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-ink/50 transition-all duration-300 flex items-center justify-center ${isFeedbackMenuOpen ? 'scale-110' : 'hover:opacity-80'}`}
               title="Zgłoś błąd lub zaproponuj funkcję"
               aria-expanded={isFeedbackMenuOpen}
               aria-haspopup="true"
@@ -2200,7 +2222,7 @@ Finalny numer: ABC412345`}</pre>
             </button>
             
             {/* Tooltip */}
-            <div className={`absolute bottom-1/2 right-full mr-2 px-3 py-2 bg-black text-white text-xs font-bold rounded-lg transition-opacity duration-300 whitespace-nowrap transform -translate-y-1/2 ${isFeedbackMenuOpen ? 'opacity-100' : 'opacity-0'}`}>
+            <div className={`absolute bottom-1/2 right-full mr-2 px-3 py-2 bg-ink text-inverse text-xs font-bold rounded-lg transition-opacity duration-300 whitespace-nowrap transform -translate-y-1/2 ${isFeedbackMenuOpen ? 'opacity-100' : 'opacity-0'}`}>
               Zgłoś błąd lub zaproponuj funkcję
             </div>
             
@@ -2232,7 +2254,7 @@ Finalny numer: ABC412345`}</pre>
       {!showFloatingButton && (
         <button
           onClick={() => setShowFloatingButton(true)}
-          className="fixed bottom-6 right-6 z-50 w-12 h-12 bg-gray-600 text-white rounded-full shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-300 flex items-center justify-center"
+          className="fixed bottom-6 right-6 z-50 w-12 h-12 bg-gray-600 text-white rounded-full shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-ink/50 transition-all duration-300 flex items-center justify-center"
           title="Pokaż przycisk zgłaszania"
         >
           <Bug size={16} />

@@ -3,30 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/wasi.ico" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/Wasi_noBackground.png" />
+    <link rel="apple-touch-icon" href="/Wasi_noBackground.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- Primary Meta Tags - Optimized for AI Search -->
-    <title>Generator Danych Testowych - PESEL, REGON, NIP, Dowód | Bezpłatny</title>
-    <meta name="title" content="Generator Danych Testowych - PESEL, REGON, NIP, Dowód | Bezpłatny" />
+    <title>Generator PESEL, NIP, REGON, Dowodu, IBAN – Dane Testowe Online | dane-testowe.com</title>
+    <meta name="title" content="Generator PESEL, NIP, REGON, Dowodu, IBAN – Dane Testowe Online | dane-testowe.com" />
     <meta name="description" content="Bezpłatny generator polskich danych testowych: PESEL, REGON, NIP, dowód osobisty (ABC012345), mDowód, paszport, księga wieczysta, NRB, IBAN, SWIFT, GUID. Idealny do testów automatycznych z Selenium, Playwright, Cypress." />
-    <meta name="keywords" content="generator danych testowych, PESEL generator, REGON generator, NIP generator, dowód osobisty generator, mDowód generator, paszport generator, księga wieczysta generator, NRB generator, IBAN generator, SWIFT generator, GUID generator, dane testowe, testy automatyczne, selenium, playwright, cypress, automatyzacja testów, polskie dane testowe, fake data generator, test data, QA testing tools" />
     <meta name="author" content="Grandpa1001" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="language" content="Polish" />
-    <meta name="revisit-after" content="3 days" />
-    <meta name="rating" content="general" />
-    <meta name="distribution" content="global" />
     
     <!-- Open Graph / Facebook - Enhanced for AI -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://dane-testowe.netlify.app/" />
-    <meta property="og:title" content="Generator Danych Testowych - PESEL, REGON, NIP, Dowód | Bezpłatny" />
+    <meta property="og:url" content="https://dane-testowe.com/" />
+    <meta property="og:title" content="Generator PESEL, NIP, REGON, Dowodu, IBAN – Dane Testowe Online | dane-testowe.com" />
     <meta property="og:description" content="Bezpłatny generator polskich danych testowych: PESEL, REGON, NIP, dowód osobisty (ABC012345), mDowód, paszport, księga wieczysta, NRB, IBAN, SWIFT, GUID. Idealny do testów automatycznych z Selenium, Playwright, Cypress." />
-    <meta property="og:image" content="https://dane-testowe.netlify.app/WasiHead.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image" content="https://dane-testowe.com/WasiHead.png" />
+    <meta property="og:image:width" content="597" />
+    <meta property="og:image:height" content="548" />
     <meta property="og:image:alt" content="Generator Danych Testowych - Logo Wasi" />
-    <meta property="og:site_name" content="Generator Danych Testowych" />
+    <meta property="og:site_name" content="dane-testowe.com" />
     <meta property="og:locale" content="pl_PL" />
     <meta property="article:author" content="Grandpa1001" />
     <meta property="article:section" content="Narzędzia deweloperskie" />
@@ -36,18 +33,29 @@
     
     <!-- Twitter - Enhanced for AI -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://dane-testowe.netlify.app/" />
-    <meta property="twitter:title" content="Generator Danych Testowych - PESEL, REGON, NIP, Dowód | Bezpłatny" />
+    <meta property="twitter:url" content="https://dane-testowe.com/" />
+    <meta property="twitter:title" content="Generator PESEL, NIP, REGON, Dowodu, IBAN – Dane Testowe Online | dane-testowe.com" />
     <meta property="twitter:description" content="Bezpłatny generator polskich danych testowych: PESEL, REGON, NIP, dowód osobisty (ABC012345), mDowód, paszport, księga wieczysta, NRB, IBAN, SWIFT, GUID. Idealny do testów automatycznych." />
-    <meta property="twitter:image" content="https://dane-testowe.netlify.app/WasiHead.png" />
+    <meta property="twitter:image" content="https://dane-testowe.com/WasiHead.png" />
     <meta property="twitter:image:alt" content="Generator Danych Testowych - Logo Wasi" />
     <meta property="twitter:creator" content="@Grandpa1001" />
     <meta property="twitter:site" content="@Grandpa1001" />
     
     <!-- Additional SEO - Enhanced for AI -->
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          var dark = t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
     <meta name="msapplication-TileColor" content="#ffffff" />
-    <meta name="application-name" content="Generator Danych Testowych" />
+    <meta name="application-name" content="dane-testowe.com" />
     <meta name="generator" content="React + Vite" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -55,14 +63,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Generator Danych" />
     
-    <!-- AI Search Optimization -->
-    <meta name="ai-content-type" content="developer-tool" />
-    <meta name="ai-use-case" content="test-data-generation,automation-testing,qa-tools" />
-    <meta name="ai-target-audience" content="developers,qa-testers,automation-engineers" />
-    <meta name="ai-features" content="pesel-generator,regon-generator,nip-generator,id-card-generator,selenium-support,playwright-support" />
+    
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://dane-testowe.netlify.app/" />
+    <link rel="canonical" href="https://dane-testowe.com/" />
+    <link rel="alternate" hreflang="pl" href="https://dane-testowe.com/" />
+    <link rel="alternate" hreflang="x-default" href="https://dane-testowe.com/" />
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
     
     <!-- LLMs.txt for AI Search -->
     <link rel="alternate" type="text/plain" href="/llms.txt" title="Informacje dla LLM" />
@@ -77,16 +84,7 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', 'G-3R7XXEZ8SW');
-    </script>
-    
-    <!-- Google Ads (gtag.js) for conversion tracking -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17593490741"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
+      gtag('config', 'G-3R7XXEZ8SW', { send_page_view: true });
       gtag('config', 'AW-17593490741');
     </script>
     
@@ -106,13 +104,13 @@
       "name": "Generator Danych Testowych",
       "alternateName": "Polski Generator Danych Testowych",
       "description": "Bezpłatny generator polskich danych testowych: PESEL, REGON, NIP, dowód osobisty (ABC012345), mDowód, paszport, księga wieczysta, NRB, IBAN, SWIFT, GUID. Idealny do testów automatycznych z Selenium, Playwright, Cypress.",
-      "url": "https://dane-testowe.netlify.app/",
+      "url": "https://dane-testowe.com/",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Web Browser",
       "browserRequirements": "Requires JavaScript. Requires HTML5.",
       "softwareVersion": "1.0.0",
       "datePublished": "2024-01-01",
-      "dateModified": "2024-12-19",
+      "dateModified": "2026-10-06",
       "inLanguage": "pl",
       "isAccessibleForFree": true,
       "offers": {
@@ -152,7 +150,7 @@
         "Kopiowanie do schowka",
         "Instrukcje dla Selenium, Playwright, Cypress"
       ],
-      "screenshot": "https://dane-testowe.netlify.app/WasiHead.png",
+      "screenshot": "https://dane-testowe.com/WasiHead.png",
       "softwareHelp": {
         "@type": "CreativeWork",
         "name": "Instrukcje Automatyzacji",
@@ -182,6 +180,17 @@
     }
     </script>
     
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "dane-testowe.com",
+      "alternateName": ["Dane Testowe", "Generator Danych Testowych"],
+      "url": "https://dane-testowe.com/",
+      "inLanguage": "pl-PL"
+    }
+    </script>
+
     <!-- FAQ Schema for AI -->
     <script type="application/ld+json">
     {
@@ -230,7 +239,13 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     
-    <div id="root"></div>
+    <div id="root">
+      <main>
+        <h1>Generator Danych Testowych – PESEL, NIP, REGON, dowód osobisty, IBAN</h1>
+        <p>Bezpłatny generator polskich danych testowych online: PESEL, REGON (9 i 14 cyfr), NIP, numer dowodu osobistego, mDowód, paszport, księga wieczysta, NRB, IBAN, SWIFT, GUID oraz imiona i nazwiska. Idealny do testów automatycznych w Selenium, Playwright i Cypress.</p>
+        <p>Do działania strony wymagany jest włączony JavaScript.</p>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

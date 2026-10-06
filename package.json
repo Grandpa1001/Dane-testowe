@@ -17,7 +17,7 @@
     "automatyczne"
   ],
   "author": "Grandpa1001",
-  "homepage": "https://dane-testowe.netlify.app/",
+  "homepage": "https://dane-testowe.com/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

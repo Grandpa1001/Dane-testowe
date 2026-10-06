@@ -2,12 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles for black radio buttons */
+:root {
+  color-scheme: light;
+  --surface: 255 255 255;
+  --muted: 243 244 246;
+  --ink: 0 0 0;
+  --subtle: 55 65 81;
+  --inverse: 255 255 255;
+}
+
+:root.dark {
+  color-scheme: dark;
+  --surface: 18 18 18;
+  --muted: 30 30 30;
+  --ink: 240 240 240;
+  --subtle: 170 170 170;
+  --inverse: 18 18 18;
+}
+
+body {
+  background-color: rgb(var(--surface));
+  color: rgb(var(--ink));
+}
+
+/* Radio buttons follow the theme ink color */
 input[type="radio"] {
-  accent-color: black;
+  accent-color: rgb(var(--ink));
 }
 
 input[type="radio"]:checked {
-  background-color: black;
-  border-color: black;
+  background-color: rgb(var(--ink));
+  border-color: rgb(var(--ink));
 }

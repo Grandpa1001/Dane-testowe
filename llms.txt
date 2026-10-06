@@ -3,7 +3,7 @@
 ## O stronie
 Generator Danych Testowych to bezpłatne narzędzie webowe do generowania polskich danych testowych dla aplikacji i testów automatycznych.
 
-**URL:** https://dane-testowe.netlify.app/
+**URL:** https://dane-testowe.com/
 **Autor:** Grandpa1001
 **Technologie:** React, TypeScript, Tailwind CSS
 **Licencja:** MIT
@@ -63,7 +63,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 driver = webdriver.Chrome()
-driver.get("https://dane-testowe.netlify.app/")
+driver.get("https://dane-testowe.com/")
 
 # Pobierz PESEL
 pesel = driver.find_element(By.ID, "input-pesel").get_attribute("value")
@@ -84,7 +84,7 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch();
   const page = await browser.newPage();
   
-  await page.goto('https://dane-testowe.netlify.app/');
+  await page.goto('https://dane-testowe.com/');
   
   const peselValue = await page.inputValue('#input-pesel');
   console.log('PESEL:', peselValue);

@@ -1,36 +1,25 @@
 User-agent: *
 Allow: /
 
-# AI Search Bots - Enhanced Access
 User-agent: GPTBot
 Allow: /
-Crawl-delay: 1
 
 User-agent: ChatGPT-User
 Allow: /
-Crawl-delay: 1
+
+User-agent: OAI-SearchBot
+Allow: /
 
 User-agent: PerplexityBot
 Allow: /
-Crawl-delay: 1
+
+User-agent: ClaudeBot
+Allow: /
 
 User-agent: Claude-Web
 Allow: /
-Crawl-delay: 1
 
 User-agent: Google-Extended
 Allow: /
-Crawl-delay: 1
 
-# Sitemap
-Sitemap: https://dane-testowe.netlify.app/sitemap.xml
-
-# LLMs.txt for AI
-Allow: /llms.txt
-
-# Crawl-delay
-Crawl-delay: 1
-
-# Disallow (if needed in future)
-# Disallow: /admin/
-# Disallow: /private/
+Sitemap: https://dane-testowe.com/sitemap.xml

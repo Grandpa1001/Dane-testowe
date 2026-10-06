@@ -2,7 +2,7 @@
 
 **Bezpłatny generator polskich danych testowych** - PESEL, REGON, NIP, dowód osobisty (ABC012345), mDowód, paszport, księga wieczysta, NRB, IBAN, SWIFT, GUID. Idealny do testów automatycznych z Selenium, Playwright, Cypress.
 
-🌐 **Live Demo:** https://dane-testowe.netlify.app/
+🌐 **Live Demo:** https://dane-testowe.com/
 
 ## 🚀 Funkcje
 
@@ -60,7 +60,7 @@ npm run dev
 
 4. Otwórz [http://localhost:5173](http://localhost:5173) w przeglądarce (lokalny development)
 
-**🌐 Produkcja:** [https://dane-testowe.netlify.app/](https://dane-testowe.netlify.app/)
+**🌐 Produkcja:** [https://dane-testowe.com/](https://dane-testowe.com/)
 
 ## 📝 Użycie
 
@@ -117,7 +117,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 driver = webdriver.Chrome()
-driver.get("https://dane-testowe.netlify.app/")
+driver.get("https://dane-testowe.com/")
 
 # Pobierz PESEL
 pesel = driver.find_element(By.ID, "input-pesel").get_attribute("value")
@@ -151,7 +151,7 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch();
   const page = await browser.newPage();
   
-  await page.goto('https://dane-testowe.netlify.app/');
+  await page.goto('https://dane-testowe.com/');
   
 const peselValue = await page.inputValue('#input-pesel');
 console.log('PESEL:', peselValue);
@@ -176,24 +176,24 @@ await browser.close();
 ```javascript
 describe('Generator Danych Testowych', () => {
   it('should generate valid PESEL', () => {
-    cy.visit('https://dane-testowe.netlify.app/');
+    cy.visit('https://dane-testowe.com/');
     cy.get('#input-pesel').should('have.value').and('match', /^\d{11}$/);
   });
 
   it('should have birth date field', () => {
-    cy.visit('https://dane-testowe.netlify.app/');
+    cy.visit('https://dane-testowe.com/');
     cy.get('#input-birthDate').should('be.visible');
     cy.get('#birthDate-modified-checkbox').should('be.visible');
   });
 
   it('should allow modifying birth date', () => {
-    cy.visit('https://dane-testowe.netlify.app/');
+    cy.visit('https://dane-testowe.com/');
     cy.get('#birthDate-modified-checkbox').check();
     cy.get('#input-birthDate').should('not.be.disabled');
   });
 
   it('should generate valid e-doręczenia address', () => {
-    cy.visit('https://dane-testowe.netlify.app/');
+    cy.visit('https://dane-testowe.com/');
     cy.get('#input-edoreczenie').should('be.visible');
     cy.get('#input-edoreczenie').should('have.value').and('match', /^AE:PL-\d{5}-\d{5}-[A-Z]{5}-\d{2}$/);
   });
@@ -267,8 +267,8 @@ Ten projekt jest dostępny na licencji MIT. Zobacz plik `LICENSE` dla szczegół
 
 ## 🔗 Linki
 
-- **🌐 Live Demo:** https://dane-testowe.netlify.app/
-- **📖 Dokumentacja AI:** https://dane-testowe.netlify.app/llms.txt
+- **🌐 Live Demo:** https://dane-testowe.com/
+- **📖 Dokumentacja AI:** https://dane-testowe.com/llms.txt
 - **🤖 GitHub:** https://github.com/Grandpa1001/Dane-testowe
 - **🐛 Zgłoś błąd:** https://github.com/Grandpa1001/Dane-testowe/issues/new
 - **💡 Nowa funkcja:** https://github.com/Grandpa1001/Dane-testowe/issues/new
