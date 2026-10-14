@@ -3,19 +3,12 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://dane-testowe.com/</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
       <image:loc>https://dane-testowe.com/WasiHead.png</image:loc>
-      <image:title>Generator Danych Testowych - Logo Wasi</image:title>
-      <image:caption>Bezpłatny generator polskich danych testowych dla deweloperów i testerów</image:caption>
+      <image:title>Dane testowe – generator PESEL, NIP, REGON, IBAN</image:title>
     </image:image>
-  </url>
-  <url>
-    <loc>https://dane-testowe.com/llms.txt</loc>
-    <lastmod>2026-10-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
 </urlset>

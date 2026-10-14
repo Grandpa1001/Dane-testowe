@@ -1035,7 +1035,7 @@ Jeśli masz pomysł na implementację, opisz go...`;
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-center md:text-left">
               <h1 className="text-3xl md:text-4xl font-black text-ink mb-2">
-                Generator Danych Testowych
+                Dane testowe – generator PESEL, NIP, REGON, IBAN
               </h1>
               <p className="text-subtle text-sm">
                 PESEL, REGON, NIP, dowód osobisty (ABC012345), mDowód, paszport, księga wieczysta, NRB, SWIFT, GUID, adres e-doręczeń
@@ -2189,6 +2189,38 @@ Finalny numer: ABC412345`}</pre>
         </div>
       )}
 
+
+      {/* Treść opisowa + FAQ (zgodna z danymi strukturalnymi w index.html) */}
+      <section className="max-w-4xl mx-auto px-4 mt-8" aria-labelledby="about-heading">
+        <h2 id="about-heading" className="text-2xl font-black text-ink mb-3">
+          Darmowy generator danych testowych online
+        </h2>
+        <p className="text-sm text-subtle mb-3">
+          Dane-testowe.com generuje poprawne polskie numery PESEL, NIP, REGON (9 i 14 cyfr), numer dowodu osobistego,
+          mDowód, paszport, księgę wieczystą, NRB, IBAN i SWIFT oraz GUID, imiona i nazwiska. Numery mają prawidłowe
+          cyfry kontrolne, więc przechodzą walidację w formularzach i systemach, ale nie należą do prawdziwych osób.
+          Generator sprawdza się w testach manualnych oraz w automatyzacji z Selenium, Playwright i Cypress.
+        </p>
+        <h2 className="text-2xl font-black text-ink mt-6 mb-3">Najczęściej zadawane pytania</h2>
+        <dl className="space-y-3 text-sm">
+          <div>
+            <dt className="font-bold text-ink">Jak używać generatora danych testowych z Selenium?</dt>
+            <dd className="text-subtle">Każde pole ma unikalny ID (np. input-pesel). Użyj driver.find_element(By.ID, 'input-pesel') w Selenium, aby pobrać wygenerowaną wartość.</dd>
+          </div>
+          <div>
+            <dt className="font-bold text-ink">Jakie dane można wygenerować?</dt>
+            <dd className="text-subtle">PESEL, REGON, NIP, numer dowodu osobistego (ABC012345), mDowód, paszport, księga wieczysta, NRB, IBAN, SWIFT, GUID oraz polskie imiona i nazwiska.</dd>
+          </div>
+          <div>
+            <dt className="font-bold text-ink">Czy generator jest bezpłatny?</dt>
+            <dd className="text-subtle">Tak, generator jest całkowicie bezpłatny i dostępny online bez rejestracji.</dd>
+          </div>
+          <div>
+            <dt className="font-bold text-ink">Jak skopiować wygenerowane dane?</dt>
+            <dd className="text-subtle">Kliknij dowolne pole, aby automatycznie skopiować wartość do schowka. Przycisk odświeżania generuje nowe dane.</dd>
+          </div>
+        </dl>
+      </section>
 
       {/* Footer */}
       <footer className="bg-surface border-t-2 border-ink mt-8">
